@@ -5,5 +5,5 @@ import Game.Board exposing (..)
 
 
 main: Element 
-main = show <| setBoardOrigin createBoard
+main = show <| getCirclesAtRow 1 <|setBoardOrigin createBoard
 

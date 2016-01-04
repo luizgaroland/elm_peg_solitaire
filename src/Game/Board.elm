@@ -5,6 +5,9 @@ import Dict exposing (..)
 type alias Coordinate = (Int, Int)
 
 
+type alias Row = Int
+
+
 type alias BoardCircle =
     {
         hasPiece : Bool
@@ -117,3 +120,21 @@ setBoardOrigin board =
         board' = Dict.map ( setCirclePiece True ) board
     in
         setBoardPiece False board' (4,4)
+
+
+-- We don't use BoardCircle here but it is needed 'cause 
+-- of Dict.filter : (comparable -> v -> Bool) 
+--                -> Dict comparable v 
+--                -> Dict comparable v
+isCircleAtRow : Row -> Coordinate -> BoardCircle -> Bool
+isCircleAtRow row coordinate boardCircle =
+    if getX coordinate == row then
+        True
+
+    else
+        False
+
+
+getCirclesAtRow : Row -> Board -> Board
+getCirclesAtRow row board =
+    Dict.filter ( isCircleAtRow row ) board
