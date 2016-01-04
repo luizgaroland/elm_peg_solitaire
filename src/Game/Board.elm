@@ -1,38 +1,31 @@
 module Game.Board where
 
-type alias Coordinate =
-    {
-        x : Int
-    ,   y : Int
-    }
+import Dict exposing (..)
+
+type alias Coordinate = (Int, Int)
 
 
 type alias BoardCircle =
     {
         hasPiece : Bool
-    ,   coord : Coordinate
     }
 
 
-coordinate : Int -> Int -> Coordinate
-coordinate x y =
-    {
-        x = x
-    ,   y = y
-    }
+type alias Board = Dict Coordinate BoardCircle
 
 
 validateCoord : Coordinate -> Bool
 validateCoord coord =
-    if ( coord.x > 2 && coord.x < 6 ) && ( coord.y > 0 && coord.y < 4 ) then
+    if ( getX coord > 2 && getX coord < 6 ) 
+    && ( getY coord > 0 && getY coord < 4 ) then
         True
 
-    else if ( coord.x > 0 && coord.x < 8 ) 
-    && ( coord.y > 2 && coord.y < 6 ) then 
+    else if ( getX coord > 0 && getX coord < 8 ) 
+    && ( getY coord > 2 && getY coord < 6 ) then 
         True
 
-    else if ( coord.x > 2 && coord.x < 6 )
-    && ( coord.y > 5 && coord.y < 8 ) then
+    else if ( getX coord > 2 && getX coord < 6 )
+    && ( getY coord > 5 && getY coord < 8 ) then
         True
 
     else
@@ -54,9 +47,41 @@ getTuplesList =
     List.concat <| List.map getTuplesRow [1..7]
 
 
-fromTupleToCoordinate : (Int, Int) -> Coordinate
-fromTupleToCoordinate tuple =
+getX : Coordinate -> Int
+getX tuple =
+    fst tuple
+
+getY : Coordinate -> Int
+getY tuple =
+    snd tuple
+
+
+boardCircle : Bool -> BoardCircle
+boardCircle hpiece =
     {
-        x = fst tuple
-    ,   y = snd tuple
+        hasPiece = hpiece
     }
+
+
+getValidCoordinates : List Coordinate
+getValidCoordinates = 
+    List.filter validateCoord getTuplesList
+
+
+getBoardCircles : List BoardCircle
+getBoardCircles =
+    let
+        fromDigitToCircle digit =
+            boardCircle False
+    in
+    List.map fromDigitToCircle [1..33]
+
+
+zipCoordWithBoardCircles : List Coordinate -> List BoardCircle -> List ( Coordinate, BoardCircle )
+zipCoordWithBoardCircles coords circles =
+    List.map2 (,) coords circles
+
+
+createBoard: Dict Coordinate BoardCircle
+createBoard =
+    Dict.fromList <| zipCoordWithBoardCircles getValidCoordinates getBoardCircles
