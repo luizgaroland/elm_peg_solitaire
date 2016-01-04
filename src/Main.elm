@@ -5,4 +5,5 @@ import Game.Board exposing (..)
 
 
 main: Element 
-main = show <| createBoard
+main = show <| setBoardOrigin createBoard
+

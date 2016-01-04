@@ -32,24 +32,25 @@ validateCoord coord =
         False
 
 
-getTuple : Int -> Int -> (Int, Int)
-getTuple x y =
+getCoordinate : Int -> Int -> Coordinate
+getCoordinate x y =
     (x, y)
 
 
-getTuplesRow : Int -> List (Int, Int)
-getTuplesRow digit =
-    List.map (getTuple digit) [1..7]
+getCoordinatesRow : Int -> List Coordinate
+getCoordinatesRow digit =
+    List.map (getCoordinate digit) [1..7]
 
 
-getTuplesList : List (Int, Int)
-getTuplesList =
-    List.concat <| List.map getTuplesRow [1..7]
+getCoordinatesList : List Coordinate
+getCoordinatesList =
+    List.concat <| List.map getCoordinatesRow [1..7]
 
 
 getX : Coordinate -> Int
 getX tuple =
     fst tuple
+
 
 getY : Coordinate -> Int
 getY tuple =
@@ -65,7 +66,7 @@ boardCircle hpiece =
 
 getValidCoordinates : List Coordinate
 getValidCoordinates = 
-    List.filter validateCoord getTuplesList
+    List.filter validateCoord getCoordinatesList
 
 
 getBoardCircles : List BoardCircle
@@ -74,14 +75,45 @@ getBoardCircles =
         fromDigitToCircle digit =
             boardCircle False
     in
-    List.map fromDigitToCircle [1..33]
+        List.map fromDigitToCircle [1..33]
 
 
-zipCoordWithBoardCircles : List Coordinate -> List BoardCircle -> List ( Coordinate, BoardCircle )
+zipCoordWithBoardCircles : List Coordinate 
+                         -> List BoardCircle 
+                         -> List ( Coordinate, BoardCircle )
 zipCoordWithBoardCircles coords circles =
     List.map2 (,) coords circles
 
 
-createBoard: Dict Coordinate BoardCircle
+createBoard : Board
 createBoard =
-    Dict.fromList <| zipCoordWithBoardCircles getValidCoordinates getBoardCircles
+    Dict.fromList <| zipCoordWithBoardCircles 
+    getValidCoordinates getBoardCircles
+
+
+updateCirclePiece : Bool -> Maybe BoardCircle -> Maybe BoardCircle
+updateCirclePiece withPiece boardCircle =
+    case boardCircle of
+        Just boardCircle ->
+            Just { boardCircle | hasPiece = withPiece }
+
+        Nothing ->
+            boardCircle
+
+
+setBoardPiece : Bool -> Board -> Coordinate -> Board
+setBoardPiece withPiece board coordinate  =
+    Dict.update coordinate ( updateCirclePiece withPiece ) board
+
+
+setCirclePiece : Bool -> Coordinate -> BoardCircle -> BoardCircle
+setCirclePiece withPiece coordinate boardCircle =
+    { boardCircle | hasPiece = withPiece }
+
+
+setBoardOrigin : Board -> Board
+setBoardOrigin board =
+    let
+        board' = Dict.map ( setCirclePiece True ) board
+    in
+        setBoardPiece False board' (4,4)

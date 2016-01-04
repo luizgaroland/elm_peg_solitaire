@@ -5,10 +5,10 @@ import Html.Attributes  exposing (..)
 import View.BoardPeripherals exposing (..)
 
 
-type BoardCircleCase = WithPiece | WithoutPiece | Filler
+type BoardCircleViewCase = WithPiece | WithoutPiece | Filler
 
 
-renderBoardCircle : BoardCircleCase -> Html
+renderBoardCircle : BoardCircleViewCase -> Html
 renderBoardCircle circleCase =
     case circleCase of
         WithPiece ->
