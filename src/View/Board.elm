@@ -2,6 +2,7 @@ module View.Board where
 
 import Html exposing (..)
 import Html.Attributes  exposing (..)
+import Dict exposing (..)
 
 
 import View.BoardPeripherals exposing (..)
@@ -51,59 +52,67 @@ getHtmlCircleAndWrapper coordCircle =
         renderBoardCircle WithoutPiece
 
 
---getHtmlFromBoardRow : BoardRow -> List Html
---getHtmlFromBoardRow boardRow =
---    List.Map
+getHtmlFromBoardRow : BoardRow -> List Html
+getHtmlFromBoardRow boardRow =
+    List.map getHtmlCircleAndWrapper <| Dict.toList boardRow
 
 
+renderTrimmedRow : BoardRow -> Html
+renderTrimmedRow row =
+    let
+        filler = [ renderBoardCircle Filler
+                 , renderBoardCircle Filler
+                 ]
 
-renderTrimmedRow : Html
-renderTrimmedRow =
-    tr []
+        filler' = [ renderBoardCircle Filler
+                  , renderBoardCircle Filler
+                  ]
+
+        html = List.append filler ( getHtmlFromBoardRow row )
+
+        html' = List.append html filler'
+
+    in
+        tr [] html'
+
+
+renderRow : BoardRow -> Html
+renderRow row =
+    tr [] <| getHtmlFromBoardRow row
+
+
+renderBoardTrimmedRowsTop : Board -> List Html
+renderBoardTrimmedRowsTop board =
     [
-        renderBoardCircle Filler
-    ,   renderBoardCircle Filler
-    ,   renderBoardCircle WithPiece
-    ,   renderBoardCircle WithPiece
-    ,   renderBoardCircle WithPiece
-    ,   renderBoardCircle Filler
-    ,   renderBoardCircle Filler
+        renderTrimmedRow <| getCirclesAtRow 1 board
+    ,   renderTrimmedRow <| getCirclesAtRow 2 board
     ]
 
 
-renderRow : Bool -> Html
-renderRow cpiece =
-    tr []
+renderBoardTrimmedRowsBot : Board -> List Html
+renderBoardTrimmedRowsBot board =
     [
-        renderBoardCircle WithPiece
-    ,   renderBoardCircle WithPiece
-    ,   renderBoardCircle WithPiece
-    ,   renderBoardCircle ( if cpiece then WithPiece else WithoutPiece )
-    ,   renderBoardCircle WithPiece
-    ,   renderBoardCircle WithPiece
-    ,   renderBoardCircle WithPiece
+        renderTrimmedRow <| getCirclesAtRow 6 board
+    ,   renderTrimmedRow <| getCirclesAtRow 7 board
     ]
 
 
-renderBoardTrimmedRow : List Html
-renderBoardTrimmedRow =
+renderBoardCentralCluster : Board -> List Html
+renderBoardCentralCluster board =
     [
-        renderTrimmedRow
-    ,   renderTrimmedRow
+        renderRow <| getCirclesAtRow 3 board
+    ,   renderRow <| getCirclesAtRow 4 board
+    ,   renderRow <| getCirclesAtRow 5 board
     ]
 
 
-renderBoardCentralCluster : List Html
-renderBoardCentralCluster =
-    [
-        renderRow True
-    ,   renderRow False
-    ,   renderRow True
-    ]
+renderBoard : Board -> Html
+renderBoard board =
+    let
+        rowsTop =  renderBoardTrimmedRowsTop board
 
+        rowBot = renderBoardTrimmedRowsBot board
 
-renderBoard : Html
-renderBoard =
-    table [] <| 
-        renderBoardTrimmedRow ++ renderBoardCentralCluster ++
-        renderBoardTrimmedRow
+        centralCluster = renderBoardCentralCluster board
+    in
+        table [] <| rowsTop ++ centralCluster ++ rowBot

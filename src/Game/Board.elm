@@ -80,6 +80,7 @@ getBoardCircles =
     let
         fromDigitToCircle digit =
             boardCircle False
+
     in
         List.map fromDigitToCircle [1..33]
 
