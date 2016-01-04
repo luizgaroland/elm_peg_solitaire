@@ -1,9 +1,11 @@
 module Main(main) where
 
+import Html exposing (..)
 import Graphics.Element exposing (..)
+
 import Game.Board exposing (..)
+import View.Board exposing (..)
 
-
-main: Element 
-main = show <| getCirclesAtRow 1 <|setBoardOrigin createBoard
+main: Html 
+main = renderBoard
 

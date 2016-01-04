@@ -2,7 +2,10 @@ module View.Board where
 
 import Html exposing (..)
 import Html.Attributes  exposing (..)
+
+
 import View.BoardPeripherals exposing (..)
+import Game.Board exposing (..)
 
 
 type BoardCircleViewCase = WithPiece | WithoutPiece | Filler
@@ -12,57 +15,59 @@ renderBoardCircle : BoardCircleViewCase -> Html
 renderBoardCircle circleCase =
     case circleCase of
         WithPiece ->
-            span [ class circleWrapperClass ]
-                [
-                    boardCircle
-                ,   piece
-                ]
+            td []
+            [
+                span [ class circleWrapperClass ]
+                    [
+                        renderOuterCircle
+                    ,   piece
+                    ]
+            ]
 
         WithoutPiece -> 
-            span [ class circleWrapperClass ]
-                [
-                    boardCircle 
-                ]
+            td []
+            [
+                span [ class circleWrapperClass ]
+                    [
+                        renderOuterCircle
+                    ]
+            ]
 
         Filler ->
-            span [ class circleWrapperClass ]
-                [
-                    fillerCircle
-                ]
+            td []
+            [
+                span [ class circleWrapperClass ]
+                    [
+                        fillerCircle
+                    ]
+            ]
+
+
+getHtmlCircleAndWrapper : (Coordinate, BoardCircle) -> Html
+getHtmlCircleAndWrapper coordCircle =
+    if (snd coordCircle).hasPiece then
+        renderBoardCircle WithPiece
+    else
+        renderBoardCircle WithoutPiece
+
+
+--getHtmlFromBoardRow : BoardRow -> List Html
+--getHtmlFromBoardRow boardRow =
+--    List.Map
+
 
 
 renderTrimmedRow : Html
 renderTrimmedRow =
     tr []
     [
-        td []
-        [
-            renderBoardCircle Filler
-        ]
-    ,   td []
-        [
-            renderBoardCircle Filler
-        ]
-    ,   td []
-        [
-            renderBoardCircle WithPiece
-        ]
-    ,   td []
-        [
-            renderBoardCircle WithPiece
-        ]
-    ,   td []
-        [
-            renderBoardCircle WithPiece
-        ]
-    ,   td []
-        [
-            renderBoardCircle Filler
-        ]
-    ,   td []
-        [
-            renderBoardCircle Filler
-        ]
+        renderBoardCircle Filler
+    ,   renderBoardCircle Filler
+    ,   renderBoardCircle WithPiece
+    ,   renderBoardCircle WithPiece
+    ,   renderBoardCircle WithPiece
+    ,   renderBoardCircle Filler
+    ,   renderBoardCircle Filler
     ]
 
 
@@ -70,34 +75,13 @@ renderRow : Bool -> Html
 renderRow cpiece =
     tr []
     [
-        td []
-        [
-            renderBoardCircle WithPiece
-        ]
-    ,   td []
-        [
-            renderBoardCircle WithPiece
-        ]
-    ,   td []
-        [
-            renderBoardCircle WithPiece
-        ]
-    ,   td []
-        [
-            renderBoardCircle <| if cpiece then WithPiece else WithoutPiece
-        ]
-    ,   td []
-        [
-            renderBoardCircle WithPiece
-        ]
-    ,   td []
-        [
-            renderBoardCircle WithPiece
-        ]
-    ,   td []
-        [
-            renderBoardCircle WithPiece
-        ]
+        renderBoardCircle WithPiece
+    ,   renderBoardCircle WithPiece
+    ,   renderBoardCircle WithPiece
+    ,   renderBoardCircle ( if cpiece then WithPiece else WithoutPiece )
+    ,   renderBoardCircle WithPiece
+    ,   renderBoardCircle WithPiece
+    ,   renderBoardCircle WithPiece
     ]
 
 

@@ -1,5 +1,8 @@
 module View.BoardPeripherals where
 
+import Html exposing (..)
+import Html.Attributes  exposing (..)
+
 boardCircleClass : String
 boardCircleClass = "fa fa-circle fa-stack-2x fa-inverse"
 
@@ -16,8 +19,8 @@ boardCircleFillerClass : String
 boardCircleFillerClass = "filler-circle " ++ boardCircleClass
 
 
-boardCircle : Html
-boardCircle = i [ class boardCircleClass ] []
+renderOuterCircle : Html
+renderOuterCircle = i [ class boardCircleClass ] []
 
 
 piece : Html

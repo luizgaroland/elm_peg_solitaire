@@ -17,6 +17,9 @@ type alias BoardCircle =
 type alias Board = Dict Coordinate BoardCircle
 
 
+type alias BoardRow = Dict Coordinate BoardCircle
+
+
 validateCoord : Coordinate -> Bool
 validateCoord coord =
     if ( getX coord > 2 && getX coord < 6 ) 
@@ -135,6 +138,6 @@ isCircleAtRow row coordinate boardCircle =
         False
 
 
-getCirclesAtRow : Row -> Board -> Board
+getCirclesAtRow : Row -> Board -> BoardRow
 getCirclesAtRow row board =
     Dict.filter ( isCircleAtRow row ) board
