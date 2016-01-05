@@ -5,6 +5,9 @@ import Dict exposing (..)
 type alias Coordinate = (Int, Int)
 
 
+type Direction = Horizontal | Vertical
+
+
 type alias Row = Int
 
 
@@ -18,6 +21,9 @@ type alias Board = Dict Coordinate BoardCircle
 
 
 type alias BoardRow = Dict Coordinate BoardCircle
+
+
+type alias BoardPosition = Dict Coordinate BoardCircle
 
 
 validateCoord : Coordinate -> Bool
@@ -142,3 +148,79 @@ isCircleAtRow row coordinate boardCircle =
 getCirclesAtRow : Row -> Board -> BoardRow
 getCirclesAtRow row board =
     Dict.filter ( isCircleAtRow row ) board
+
+
+circleAtCoordinate : Coordinate -> Coordinate -> BoardCircle -> Bool
+circleAtCoordinate coordinate coordinate' boardCircle =
+    if coordinate == coordinate' then
+        True
+
+    else
+        False
+
+
+getSurroundingCoordinates : Coordinate -> List Coordinate
+getSurroundingCoordinates coordinate =
+    let
+        north = (,) (fst coordinate) <| ((snd coordinate) + 1)
+
+        south = (,) (fst coordinate) <| ((snd coordinate) - 1)
+
+        east = (,) ((fst coordinate) + 1) <| snd coordinate
+
+        west = (,) ((fst coordinate) - 1) <| snd coordinate
+    in
+        [ north, south, east, west ]
+
+
+isCircleOnListAndWithPiece : List Coordinate
+                           -> Coordinate -> BoardCircle -> Bool
+isCircleOnListAndWithPiece coordinates coordinate boardCircle =
+    if List.member coordinate coordinates then
+        if boardCircle.hasPiece then
+            True
+        else
+            False
+    else
+        False
+
+isCircleOnCoordinateWithPiece : Coordinate -> Coordinate -> BoardCircle -> Bool
+isCircleOnCoordinateWithPiece coordinate coordinate' boardCircle =
+    if coordinate == coordinate' then
+        if boardCircle.hasPiece then
+            True
+
+        else
+            False
+    else
+        False
+
+
+isPieceSurrounded : Coordinate -> Board -> Bool
+isPieceSurrounded coordinate board =
+    let
+
+        atCoordinateHavePiece = Dict.filter 
+            ( isCircleOnCoordinateWithPiece coordinate ) board
+
+        surroundingCoordinates = getSurroundingCoordinates coordinate
+
+        surroundingCoordinates' =
+            List.filter validateCoord surroundingCoordinates
+
+        positions = Dict.filter 
+            ( isCircleOnListAndWithPiece surroundingCoordinates' ) board
+
+        positions' = Dict.toList positions
+
+        atCoordinateHavePiece' = Dict.toList atCoordinateHavePiece
+
+    in
+        if List.length atCoordinateHavePiece' == 1 then
+            if List.length positions' == List.length surroundingCoordinates' then
+                True 
+
+            else
+                False
+        else
+            False
