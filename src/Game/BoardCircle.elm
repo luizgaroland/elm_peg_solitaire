@@ -50,9 +50,10 @@ getY tuple =
     snd tuple
 
 
-zipCoordWithBoardCircles : List Coordinate 
-                         -> List BoardCircle 
-                         -> List ( Coordinate, BoardCircle )
+zipCoordWithBoardCircles : 
+    List Coordinate 
+    -> List BoardCircle 
+    -> List ( Coordinate, BoardCircle )
 zipCoordWithBoardCircles coords circles =
     List.map2 (,) coords circles
 

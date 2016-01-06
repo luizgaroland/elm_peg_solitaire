@@ -9,5 +9,9 @@ import View.Board exposing (..)
 
 main: Html
 main =
-    renderBoard <| makePlay (2,3) South <| makePlay (4,2) East <| setBoardOrigin <| createBoard
+    renderBoard 
+    <| makePlay (2,3) South 
+    <| makePlay (4,2) East 
+    <| setBoardOrigin 
+    <| createBoard
 
