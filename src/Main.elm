@@ -1,12 +1,12 @@
 module Main(main) where
 
---import Html exposing (..)
+import Html exposing (..)
 import Graphics.Element exposing (..)
 
 import Game.Board exposing (..)
 import View.Board exposing (..)
 
-main: Element
+main: Html
 main =
-    show <| isPieceSurrounded (4, 4) <| setBoardOrigin createBoard
+    renderBoard <| makePlay (2,3) South <| makePlay (4,2) East <| setBoardOrigin <| createBoard
 

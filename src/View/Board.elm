@@ -9,16 +9,16 @@ import View.BoardPeripherals exposing (..)
 import Game.Board exposing (..)
 
 
-type BoardCircleViewCase = WithPiece | WithoutPiece | Filler
+type BoardCircleViewCase = WithPiece | WithoutPiece
 
 
-renderBoardCircle : BoardCircleViewCase -> Html
-renderBoardCircle circleCase =
+renderBoardCircle : BoardCircleViewCase -> Coordinate -> Html
+renderBoardCircle circleCase coordinate =
     case circleCase of
         WithPiece ->
             td []
             [
-                span [ class circleWrapperClass ]
+                span [ class circleWrapperClass, title <| toString coordinate ]
                     [
                         renderOuterCircle
                     ,   piece
@@ -34,22 +34,23 @@ renderBoardCircle circleCase =
                     ]
             ]
 
-        Filler ->
-            td []
+renderFillerCircle : Html
+renderFillerCircle =
+    td []
+    [
+        span [ class circleWrapperClass ]
             [
-                span [ class circleWrapperClass ]
-                    [
-                        fillerCircle
-                    ]
+                fillerCircle
             ]
+    ]
 
 
 getHtmlCircleAndWrapper : (Coordinate, BoardCircle) -> Html
 getHtmlCircleAndWrapper coordCircle =
     if (snd coordCircle).hasPiece then
-        renderBoardCircle WithPiece
+        renderBoardCircle WithPiece (fst coordCircle)
     else
-        renderBoardCircle WithoutPiece
+        renderBoardCircle WithoutPiece (fst coordCircle)
 
 
 getHtmlFromBoardRow : BoardRow -> List Html
@@ -60,12 +61,12 @@ getHtmlFromBoardRow boardRow =
 renderTrimmedRow : BoardRow -> Html
 renderTrimmedRow row =
     let
-        filler = [ renderBoardCircle Filler
-                 , renderBoardCircle Filler
+        filler = [ renderFillerCircle
+                 , renderFillerCircle
                  ]
 
-        filler' = [ renderBoardCircle Filler
-                  , renderBoardCircle Filler
+        filler' = [ renderFillerCircle
+                  , renderFillerCircle
                   ]
 
         html = List.append filler ( getHtmlFromBoardRow row )

@@ -5,7 +5,7 @@ import Dict exposing (..)
 type alias Coordinate = (Int, Int)
 
 
-type Direction = Horizontal | Vertical
+type Direction = North | South | East | West
 
 
 type alias Row = Int
@@ -28,16 +28,16 @@ type alias BoardPosition = Dict Coordinate BoardCircle
 
 validateCoord : Coordinate -> Bool
 validateCoord coord =
-    if ( getX coord > 2 && getX coord < 6 ) 
-    && ( getY coord > 0 && getY coord < 4 ) then
+    if (getX coord > 2 && getX coord < 6) 
+    && (getY coord > 0 && getY coord < 4) then
         True
 
-    else if ( getX coord > 0 && getX coord < 8 ) 
-    && ( getY coord > 2 && getY coord < 6 ) then 
+    else if (getX coord > 0 && getX coord < 8) 
+    && (getY coord > 2 && getY coord < 6) then 
         True
 
-    else if ( getX coord > 2 && getX coord < 6 )
-    && ( getY coord > 5 && getY coord < 8 ) then
+    else if (getX coord > 2 && getX coord < 6)
+    && (getY coord > 5 && getY coord < 8) then
         True
 
     else
@@ -46,12 +46,12 @@ validateCoord coord =
 
 getCoordinate : Int -> Int -> Coordinate
 getCoordinate x y =
-    (x, y)
+    ( x, y )
 
 
 getCoordinatesRow : Int -> List Coordinate
 getCoordinatesRow digit =
-    List.map (getCoordinate digit) [1..7]
+    List.map ( getCoordinate digit ) [1..7]
 
 
 getCoordinatesList : List Coordinate
@@ -114,8 +114,8 @@ updateCirclePiece withPiece boardCircle =
             boardCircle
 
 
-setBoardPiece : Bool -> Board -> Coordinate -> Board
-setBoardPiece withPiece board coordinate  =
+setBoardPiece : Coordinate -> Bool -> Board -> Board
+setBoardPiece coordinate withPiece board =
     Dict.update coordinate ( updateCirclePiece withPiece ) board
 
 
@@ -129,7 +129,7 @@ setBoardOrigin board =
     let
         board' = Dict.map ( setCirclePiece True ) board
     in
-        setBoardPiece False board' (4,4)
+        setBoardPiece (4,4) False board' 
 
 
 -- We don't use BoardCircle here but it is needed 'cause 
@@ -150,37 +150,30 @@ getCirclesAtRow row board =
     Dict.filter ( isCircleAtRow row ) board
 
 
-circleAtCoordinate : Coordinate -> Coordinate -> BoardCircle -> Bool
-circleAtCoordinate coordinate coordinate' boardCircle =
-    if coordinate == coordinate' then
-        True
-
-    else
-        False
-
-
-getSurroundingCoordinates : Coordinate -> List Coordinate
-getSurroundingCoordinates coordinate =
-    let
-        north = (,) (fst coordinate) <| ((snd coordinate) + 1)
-
-        south = (,) (fst coordinate) <| ((snd coordinate) - 1)
-
-        east = (,) ((fst coordinate) + 1) <| snd coordinate
-
-        west = (,) ((fst coordinate) - 1) <| snd coordinate
-    in
-        [ north, south, east, west ]
-
-
 isCircleOnListAndWithPiece : List Coordinate
                            -> Coordinate -> BoardCircle -> Bool
 isCircleOnListAndWithPiece coordinates coordinate boardCircle =
     if List.member coordinate coordinates then
         if boardCircle.hasPiece then
             True
+
         else
             False
+
+    else
+        False
+
+
+isCircleOnListAndWithoutPiece : List Coordinate
+                              -> Coordinate -> BoardCircle -> Bool
+isCircleOnListAndWithoutPiece coordinates coordinate boardCircle =
+    if List.member coordinate coordinates then
+        if not boardCircle.hasPiece then
+            True
+
+        else
+            False
+
     else
         False
 
@@ -196,31 +189,182 @@ isCircleOnCoordinateWithPiece coordinate coordinate' boardCircle =
         False
 
 
-isPieceSurrounded : Coordinate -> Board -> Bool
-isPieceSurrounded coordinate board =
+makeDirectionsFromBooleans : Bool -> Bool -> Bool -> Bool -> List Direction
+makeDirectionsFromBooleans north south east west =
+        (if north then North :: [] else [])
+        ++ (if south then South :: [] else [])
+        ++ (if east then East :: [] else [])
+        ++ (if west then West :: [] else [])
+
+
+addCoordinateOnColumn : Coordinate -> Int -> Coordinate
+addCoordinateOnColumn coordinate num =
     let
+        x = (+) (getX coordinate) num
 
-        atCoordinateHavePiece = Dict.filter 
-            ( isCircleOnCoordinateWithPiece coordinate ) board
-
-        surroundingCoordinates = getSurroundingCoordinates coordinate
-
-        surroundingCoordinates' =
-            List.filter validateCoord surroundingCoordinates
-
-        positions = Dict.filter 
-            ( isCircleOnListAndWithPiece surroundingCoordinates' ) board
-
-        positions' = Dict.toList positions
-
-        atCoordinateHavePiece' = Dict.toList atCoordinateHavePiece
-
+        y = getY coordinate
     in
-        if List.length atCoordinateHavePiece' == 1 then
-            if List.length positions' == List.length surroundingCoordinates' then
-                True 
+        (,) x y
+
+
+addCoordinateOnRow : Coordinate -> Int -> Coordinate
+addCoordinateOnRow   coordinate num =
+    let
+        x = getX coordinate
+
+        y = (+) (getY coordinate) num
+    in
+        (,) x y
+
+
+canPlayHappenWhichDirection : Coordinate -> Board -> (Bool, List Direction)
+
+canPlayHappenWhichDirection coordinate board =
+    let
+        atCoordinateHavePiece = 
+            not
+            <| Dict.isEmpty
+            <| Dict.filter ( isCircleOnCoordinateWithPiece coordinate ) board
+
+        north = addCoordinateOnColumn coordinate -1
+
+        south = addCoordinateOnColumn coordinate 1
+
+        east = addCoordinateOnRow coordinate 1
+
+        west = addCoordinateOnRow coordinate -1
+
+        furtherNorth = addCoordinateOnColumn coordinate -2
+
+        furtherSouth = addCoordinateOnColumn coordinate 2
+
+        furtherEast = addCoordinateOnRow coordinate 2
+
+        furtherWest = addCoordinateOnRow coordinate -2
+
+        northWithPiece =
+            not 
+            <| Dict.isEmpty 
+            <| Dict.filter (isCircleOnListAndWithPiece [north]) board
+
+        furtherNorthWithoutPiece =
+            not
+            <| Dict.isEmpty
+            <| Dict.filter (isCircleOnListAndWithoutPiece [furtherNorth]) board
+
+        southWithPiece =
+            not
+            <| Dict.isEmpty
+            <| Dict.filter (isCircleOnListAndWithPiece [south]) board
+
+        furtherSouthWithoutPiece =
+            not
+            <| Dict.isEmpty
+            <| Dict.filter (isCircleOnListAndWithoutPiece [furtherSouth]) board
+
+        eastWithPiece =
+            not
+            <| Dict.isEmpty
+            <| Dict.filter (isCircleOnListAndWithPiece [east]) board
+
+        furtherEastWithoutPiece =
+            not
+            <| Dict.isEmpty
+            <| Dict.filter (isCircleOnListAndWithoutPiece [furtherEast]) board
+
+        westWithPiece =
+            not
+            <| Dict.isEmpty
+            <| Dict.filter (isCircleOnListAndWithPiece [west]) board
+
+        furtherWestWithoutPiece =
+            not
+            <| Dict.isEmpty
+            <| Dict.filter (isCircleOnListAndWithoutPiece [furtherWest]) board
+
+        northCan = northWithPiece && furtherNorthWithoutPiece
+
+        southCan = southWithPiece && furtherSouthWithoutPiece
+
+        eastCan = eastWithPiece && furtherEastWithoutPiece
+
+        westCan = westWithPiece && furtherWestWithoutPiece
+
+        directionList = 
+            makeDirectionsFromBooleans northCan southCan eastCan westCan
+
+        in
+            if atCoordinateHavePiece then
+                if northCan 
+                || southCan 
+                || eastCan 
+                || westCan then
+                
+                ( True, directionList)
+
+                else
+                    ( False, [] )
 
             else
-                False
+                ( False, [] )
+
+
+makePlay : Coordinate -> Direction -> Board -> Board
+makePlay coordinate direction board =
+    let
+        playAndDirection = canPlayHappenWhichDirection coordinate board
+
+        doMakePlay = fst playAndDirection
+
+        directions = snd playAndDirection
+
+        validDirection = List.member direction directions
+
+    in
+        if doMakePlay && validDirection then
+            case direction of
+                North->
+                    let
+                        north = addCoordinateOnColumn coordinate -1
+
+                        furtherNorth = addCoordinateOnColumn coordinate -2
+
+                    in
+                        setBoardPiece coordinate False
+                        <| setBoardPiece furtherNorth True 
+                        <| setBoardPiece north False board
+
+                South->
+                    let
+                        south = addCoordinateOnColumn coordinate 1
+
+                        furtherSouth = addCoordinateOnColumn coordinate 2
+
+                    in
+                        setBoardPiece coordinate False
+                        <| setBoardPiece furtherSouth True 
+                        <| setBoardPiece south False board
+
+                East->
+                    let
+                        east = addCoordinateOnRow coordinate 1
+
+                        furtherEast = addCoordinateOnRow coordinate 2
+
+                    in
+                        setBoardPiece coordinate False
+                        <| setBoardPiece furtherEast True 
+                        <| setBoardPiece east False board
+
+                West->
+                    let
+                        west = addCoordinateOnRow coordinate -1
+
+                        furtherWest = addCoordinateOnRow coordinate -2
+
+                    in
+                        setBoardPiece coordinate False
+                        <| setBoardPiece furtherWest True 
+                        <| setBoardPiece west False board
         else
-            False
+            board
