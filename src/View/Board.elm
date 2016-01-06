@@ -7,6 +7,7 @@ import Dict exposing (..)
 
 import View.BoardPeripherals exposing (..)
 import Game.Board exposing (..)
+import Game.BoardCircle exposing (..)
 
 
 type BoardCircleViewCase = WithPiece | WithoutPiece
@@ -28,7 +29,7 @@ renderBoardCircle circleCase coordinate =
         WithoutPiece -> 
             td []
             [
-                span [ class circleWrapperClass ]
+                span [ class circleWrapperClass, title <| toString coordinate ]
                     [
                         renderOuterCircle
                     ]
