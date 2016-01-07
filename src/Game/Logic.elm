@@ -19,7 +19,7 @@ makeDirectionsFromBooleans north south east west =
 canPlayHappenWhichDirection : Coordinate -> Board -> (Bool, List Direction)
 canPlayHappenWhichDirection coordinate board =
     let
-        atCoordinateHavePiece = 
+        atCoordinateHavePiece =
             not
             <| Dict.isEmpty
             <| Dict.filter
@@ -42,8 +42,8 @@ canPlayHappenWhichDirection coordinate board =
         furtherWest = addCoordinateOnRow coordinate -2
 
         northWithPiece =
-            not 
-            <| Dict.isEmpty 
+            not
+            <| Dict.isEmpty
             <| Dict.filter
             (isBoardCircleOnListAndWithPiece [north]) board
 
@@ -97,16 +97,16 @@ canPlayHappenWhichDirection coordinate board =
 
         westCan = westWithPiece && furtherWestWithoutPiece
 
-        directionList = 
+        directionList =
             makeDirectionsFromBooleans northCan southCan eastCan westCan
 
         in
             if atCoordinateHavePiece then
-                if northCan 
-                || southCan 
-                || eastCan 
+                if northCan
+                || southCan
+                || eastCan
                 || westCan then
-                
+
                 ( True, directionList)
 
                 else
@@ -138,7 +138,7 @@ makePlay coordinate direction board =
 
                     in
                         setBoardPiece coordinate False
-                        <| setBoardPiece furtherNorth True 
+                        <| setBoardPiece furtherNorth True
                         <| setBoardPiece north False board
 
                 South->
@@ -149,7 +149,7 @@ makePlay coordinate direction board =
 
                     in
                         setBoardPiece coordinate False
-                        <| setBoardPiece furtherSouth True 
+                        <| setBoardPiece furtherSouth True
                         <| setBoardPiece south False board
 
                 East->
@@ -160,7 +160,7 @@ makePlay coordinate direction board =
 
                     in
                         setBoardPiece coordinate False
-                        <| setBoardPiece furtherEast True 
+                        <| setBoardPiece furtherEast True
                         <| setBoardPiece east False board
 
                 West->
@@ -171,7 +171,7 @@ makePlay coordinate direction board =
 
                     in
                         setBoardPiece coordinate False
-                        <| setBoardPiece furtherWest True 
+                        <| setBoardPiece furtherWest True
                         <| setBoardPiece west False board
         else
             board

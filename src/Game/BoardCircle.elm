@@ -12,12 +12,12 @@ type alias BoardCircle =
 
 validateCoord : Coordinate -> Bool
 validateCoord coord =
-    if (getX coord > 2 && getX coord < 6) 
+    if (getX coord > 2 && getX coord < 6)
     && (getY coord > 0 && getY coord < 4) then
         True
 
-    else if (getX coord > 0 && getX coord < 8) 
-    && (getY coord > 2 && getY coord < 6) then 
+    else if (getX coord > 0 && getX coord < 8)
+    && (getY coord > 2 && getY coord < 6) then
         True
 
     else if (getX coord > 2 && getX coord < 6)
@@ -50,9 +50,9 @@ getY tuple =
     snd tuple
 
 
-zipCoordWithBoardCircles : 
-    List Coordinate 
-    -> List BoardCircle 
+zipCoordWithBoardCircles :
+    List Coordinate
+    -> List BoardCircle
     -> List ( Coordinate, BoardCircle )
 zipCoordWithBoardCircles coords circles =
     List.map2 (,) coords circles
@@ -73,7 +73,7 @@ setBoardCirclePiece withPiece coordinate boardCircle =
     { boardCircle | hasPiece = withPiece }
 
 
-isBoardCircleOnListAndWithPiece : 
+isBoardCircleOnListAndWithPiece :
     List Coordinate
     -> Coordinate
     -> BoardCircle
@@ -90,7 +90,7 @@ isBoardCircleOnListAndWithPiece coordinates coordinate boardCircle =
         False
 
 
-isBoardCircleOnListAndWithoutPiece : 
+isBoardCircleOnListAndWithoutPiece :
     List Coordinate
     -> Coordinate
     -> BoardCircle
@@ -105,6 +105,7 @@ isBoardCircleOnListAndWithoutPiece coordinates coordinate boardCircle =
 
     else
         False
+
 
 isBoardCircleOnCoordinateWithPiece : Coordinate -> Coordinate -> BoardCircle -> Bool
 isBoardCircleOnCoordinateWithPiece coordinate coordinate' boardCircle =

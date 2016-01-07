@@ -47,7 +47,7 @@ addCoordinateOnRow   coordinate num =
 
 
 getValidCoordinates : List Coordinate
-getValidCoordinates = 
+getValidCoordinates =
     List.filter validateCoord getCoordinatesList
 
 
@@ -63,7 +63,7 @@ getBoardCircles =
 
 createBoard : Board
 createBoard =
-    Dict.fromList <| zipCoordWithBoardCircles 
+    Dict.fromList <| zipCoordWithBoardCircles
     getValidCoordinates getBoardCircles
 
 
@@ -80,9 +80,9 @@ setBoardOrigin board =
         setBoardPiece (4,4) False board'
 
 
--- We don't use BoardCircle here but it is needed 'cause 
--- of Dict.filter : (comparable -> v -> Bool) 
---                -> Dict comparable v 
+-- We don't use BoardCircle here but it is needed 'cause
+-- of Dict.filter : (comparable -> v -> Bool)
+--                -> Dict comparable v
 --                -> Dict comparable v
 isBoardCircleAtRow : Row -> Coordinate -> BoardCircle -> Bool
 isBoardCircleAtRow row coordinate boardCircle =
