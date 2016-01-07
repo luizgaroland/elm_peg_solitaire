@@ -11,6 +11,7 @@ import View.Board exposing (..)
 import Game.BoardCircle exposing (..)
 
 type alias Cursor = (Int, Int)
+
 type alias Arrow = { x : Int, y : Int }
 
 
@@ -18,27 +19,83 @@ cursorOrigin : Cursor
 cursorOrigin =
     (4,4)
 
+
 cursorCoordinateY : Signal Arrow
 cursorCoordinateY =
     Keyboard.arrows
+
 
 cursorCoordinateX : Signal Arrow
 cursorCoordinateX =
     Keyboard.arrows
 
+
 fromArrowsToCoordinates : Arrow -> Arrow -> Cursor
 fromArrowsToCoordinates x y =
     (,) -x.y y.x
+
 
 cursorCoordinates : Signal Cursor
 cursorCoordinates =
     Signal.map2 fromArrowsToCoordinates cursorCoordinateX cursorCoordinateY
 
+
 updateCursor : Cursor -> Cursor -> Cursor
 updateCursor cursorSignal oldCursor =
-    (,)
-    ((fst oldCursor) + (fst cursorSignal))
-    ((snd oldCursor) + (snd cursorSignal))
+    let
+        oldX = fst oldCursor
+        oldY = snd oldCursor
+
+        xDeviation = fst cursorSignal
+        yDeviation = snd cursorSignal
+    in
+        if (oldX == 7 && oldY == 7)
+        && (xDeviation == 1 || yDeviation == 1)
+        then
+            (,)
+            (fst oldCursor)
+            (snd oldCursor)
+
+        else if (oldX == 0 && oldY == 0)
+        && (xDeviation == -1 || yDeviation == -1)
+        then
+            (,)
+            (fst oldCursor)
+            (snd oldCursor)
+
+        else if (oldX == 7 && oldY < 7)
+        && (xDeviation == 1 )
+        then
+            (,)
+            (fst oldCursor)
+            ((snd oldCursor) + (snd cursorSignal))
+
+        else if (oldX < 7 && oldY == 7)
+        && (yDeviation == 1 )
+        then
+            (,)
+            ((fst oldCursor) + (fst cursorSignal))
+            (snd oldCursor)
+
+        else if (oldX == 0 && oldY > 0)
+        && (xDeviation == -1 )
+        then
+            (,)
+            (fst oldCursor)
+            ((snd oldCursor) + (snd cursorSignal))
+
+        else if (oldX > 0 && oldY == 0)
+        && (yDeviation == -1 )
+        then
+            (,)
+            ((fst oldCursor) + (fst cursorSignal))
+            (snd oldCursor)
+
+        else
+            (,)
+            ((fst oldCursor) + (fst cursorSignal))
+            ((snd oldCursor) + (snd cursorSignal))
+
 
 cursor : Cursor -> Signal Cursor
 cursor cursor =
