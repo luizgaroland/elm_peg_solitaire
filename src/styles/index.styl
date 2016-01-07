@@ -1,10 +1,46 @@
 $body_color = #9999CC
+$cursor_color = yellow
+
+
+@keyframes flickerAnimation
+	0%   { opacity:1 }
+	100% { opacity:1 }
+	50%  { opacity:.4 }
+
+
+@-o-keyframes flickerAnimation
+	0%   { opacity:1 }
+	100% { opacity:1 }
+	50%  { opacity:.4 }
+
+
+
+@-moz-keyframes flickerAnimation
+	0%   { opacity:1 }
+	100% { opacity:1 }
+	50%  { opacity:.4 }
+
+
+
+@-webkit-keyframes flickerAnimation
+	0%   { opacity:1 }
+	100% { opacity:1 }
+	50%  { opacity:.4 }
+
+
+
+.at_cursor
+	-moz-animation: flickerAnimation 2s infinite
+	-o-animation: flickerAnimation 2s infinite
+	-webkit-animation: flickerAnimation 2s infinite
+	animation: flickerAnimation 2s infinite
+	color: $cursor_color
+
 
 body
 	background-color: $body_color
 
+
 .filler-circle
 	visibility: hidden
 
-.at_cursor
-	color: red
