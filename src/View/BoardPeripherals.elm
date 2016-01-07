@@ -6,6 +6,9 @@ import Html.Attributes  exposing (..)
 boardCircleClass : String
 boardCircleClass = "fa fa-circle fa-stack-2x fa-inverse"
 
+boardCircleAtCursor : String
+boardCircleAtCursor = "fa fa-circle fa-stack-2x at_cursor"
+
 
 pieceClass : String
 pieceClass = "fa fa-circle fa-stack-1x"
@@ -21,6 +24,10 @@ boardCircleFillerClass = "filler-circle " ++ boardCircleClass
 
 renderOuterCircle : Html
 renderOuterCircle = i [ class boardCircleClass ] []
+
+
+renderOuterCircleAtCursor : Html
+renderOuterCircleAtCursor = i [ class boardCircleAtCursor ] []
 
 
 piece : Html
