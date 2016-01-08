@@ -1,5 +1,6 @@
 module View.Board where
 
+
 import Html exposing (..)
 import Html.Attributes  exposing (..)
 import Dict exposing (..)
@@ -107,6 +108,7 @@ getHtmlCircleAndWrapper : Cursor -> (Coordinate, BoardCircle)  -> Html
 getHtmlCircleAndWrapper cursor coordCircle =
     if (snd coordCircle).hasPiece then
         renderBoardCircle WithPiece (fst coordCircle) cursor
+
     else
         renderBoardCircle WithoutPiece (fst coordCircle) cursor
 
@@ -177,5 +179,6 @@ renderBoard board cursor =
         rowBot = renderBoardTrimmedRowsBot board cursor
 
         centralCluster = renderBoardCentralCluster board cursor
+
     in
         table [] <| rowsTop ++ centralCluster ++ rowBot

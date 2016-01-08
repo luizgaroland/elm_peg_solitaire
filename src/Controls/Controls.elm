@@ -5,6 +5,7 @@ import Keyboard
 
 
 import Game.BoardCircle exposing (..)
+import Game.Logic exposing (..)
 
 
 type alias Cursor = (Int, Int)
@@ -33,8 +34,8 @@ fromArrowsToCoordinates x y =
     (,) -x.y y.x
 
 
-cursorCoordinates : Signal Cursor
-cursorCoordinates =
+getCursorDeviation : Signal Cursor
+getCursorDeviation =
     Signal.map2 fromArrowsToCoordinates cursorCoordinateX cursorCoordinateY
 
 
@@ -62,4 +63,33 @@ updateCursor cursorSignal oldCursor =
 
 getCursor : Signal Cursor
 getCursor =
-    Signal.foldp updateCursor cursorOrigin cursorCoordinates
+    Signal.foldp updateCursor cursorOrigin getCursorDeviation
+
+
+fromDeviationToDirection : Cursor -> Direction
+fromDeviationToDirection cursor =
+    let
+        cursorX = fst cursor
+
+        cursorY = snd cursor
+
+    in
+        if cursorX == 1 && cursorY == 0 then
+            South
+
+        else if cursorX == -1 && cursorY == 0 then
+            North
+
+        else if cursorX == 0 && cursorY == 1 then
+            East
+
+        else if cursorX == 0 && cursorY == -1 then
+            West
+
+        else
+            InvalidDirection
+
+
+makePlayKeyPressed : Signal Bool
+makePlayKeyPressed =
+    Keyboard.space
