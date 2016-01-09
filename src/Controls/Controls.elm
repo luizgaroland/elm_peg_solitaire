@@ -90,6 +90,11 @@ fromDeviationToDirection cursor =
             InvalidDirection
 
 
+getCursorDirection : Signal Direction
+getCursorDirection =
+Signal.map fromDeviationToDirection getCursorDeviation
+
+
 makePlayKeyPressed : Signal Bool
 makePlayKeyPressed =
     Keyboard.space

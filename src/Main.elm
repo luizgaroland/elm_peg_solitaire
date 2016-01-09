@@ -5,9 +5,9 @@ import Mouse
 import Html exposing (..)
 import Graphics.Element exposing (..)
 
-import Game.Board exposing (..)
+
 import Game.Logic exposing (..)
-import View.Board exposing (..)
+import View.Canvas exposing (..)
 --import Game.BoardCircle exposing (..)
 import Controls.Controls exposing (..)
 
@@ -20,6 +20,6 @@ boardSignal =
         Signal.foldp (\clk board -> makePlay (4,2) East board) board Mouse.clicks 
 
 
-main: Signal Element
+main: Signal Html
 main =
-    Signal.map show (Signal.map fromDeviationToDirection getCursorDeviation)
+    Signal.foldp  renderGame

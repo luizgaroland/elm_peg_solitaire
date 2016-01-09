@@ -1,11 +1,17 @@
---module View.Canvas where
+module View.Canvas where
 
 
---import Html exposing (..)
---import Html.Attributes  exposing (..)
+import Html exposing (..)
+import Html.Attributes  exposing (..)
 
 
---import Game.Logic exposing (..)
+import Game.Logic exposing (..)
+import View.Board exposing (..)
 
 
---renderGame : GameState -> Cursor -> Board -> Html
+renderGame : Game -> Html
+renderGame game =
+    let
+        state = game.gameState
+        board = game.board
+    in
