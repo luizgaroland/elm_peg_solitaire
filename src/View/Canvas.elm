@@ -2,16 +2,12 @@ module View.Canvas where
 
 
 import Html exposing (..)
-import Html.Attributes  exposing (..)
 
 
-import Game.Logic exposing (..)
+import Update exposing (..)
 import View.Board exposing (..)
 
 
-renderGame : Game -> Html
-renderGame game =
-    let
-        state = game.gameState
-        board = game.board
-    in
+renderGame : Signal Html
+renderGame = 
+    Signal.map (\game -> renderBoard game.board game.cursor) getGame

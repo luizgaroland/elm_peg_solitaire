@@ -1,35 +1,14 @@
 module Game.Logic where
 
 import Dict exposing (..)
+import Game.Definition exposing (..)
 import Game.Board exposing (..)
 import Game.BoardCircle exposing (..)
 
 
-type Direction = North | South | East | West | InvalidDirection
-
-type GameState = 
-    --Game start everything but the center circle with piece
-    Origin
-
-    -- Plays are still possible
-    | Playing
-
-    -- PLay is happening and player need to input a direction to it happen
-    | PlayingToChooseDirection
-
-    -- Plays aren't possible anymore
-    -- and there are more than one piece on the board
-    | Loss
-
-    -- Plays aren't Possible anymore and theres one piece on the board
-    | Win
-
-
-type alias Game =
-    {
-        gameState : GameState
-    ,   board : Board
-    }
+cursorOrigin : Cursor
+cursorOrigin =
+    (4,4)
 
 
 getInitialGame : Game
@@ -37,6 +16,7 @@ getInitialGame =
     {
         gameState = Origin
     ,   board = setBoardOrigin <| createBoard
+    ,   cursor = cursorOrigin
     }
 
 
@@ -139,13 +119,13 @@ canPlayHappenWhichDirection coordinate board =
                 || eastCan
                 || westCan then
 
-                ( True, directionList)
+                ( True, directionList )
 
                 else
-                    ( False, [] )
+                    ( False, directionList )
 
             else
-                ( False, [] )
+                ( False, directionList )
 
 
 makePlay : Coordinate -> Direction -> Board -> Board

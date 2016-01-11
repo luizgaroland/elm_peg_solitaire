@@ -1,34 +1,48 @@
 module Update where
 
+
+import Game.Definition exposing (..)
 import Game.Logic exposing (..)
-import Controls.Controls exposing (..)
+import Game.Controls exposing (..)
 
 
-updateGame : Game -> Cursor -> Direction -> Bool -> Game
-updateGame game cursor direction makePlay =
+updateGame : Game -> Cursor -> Game
+updateGame game newCursor =
     let
         board = game.board
 
         gameState = game.gameState
 
+        newGame = { game | cursor = newCursor }
+
     in
         case gameState of
             Origin ->
-                game
+                newGame
 
             Playing ->
-                game
+                newGame
 
             PlayingToChooseDirection ->
-                game
+                newGame
 
             Loss ->
-                game
+                newGame
 
             Win ->
-                game
+                newGame
+
+
+processPlay : (Bool, Cursor) -> Game -> Game
+processPlay play game =
+    let
+        makePlay = fst play
+
+        cursor = snd play
+    in
+        updateGame game cursor
 
 
 getGame : Signal Game
 getGame =
-    Signal.foldp (updateGame
+    Signal.foldp processPlay getInitialGame getPlay

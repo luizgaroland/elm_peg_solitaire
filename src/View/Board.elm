@@ -7,9 +7,9 @@ import Dict exposing (..)
 
 
 import View.BoardPeripherals exposing (..)
+import Game.Definition exposing (..)
 import Game.Board exposing (..)
 import Game.BoardCircle exposing (..)
-import Controls.Controls exposing (..)
 
 
 type BoardCircleViewCase = WithPiece | WithoutPiece

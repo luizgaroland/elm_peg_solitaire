@@ -1,19 +1,8 @@
 module Game.Board where
 
 import Dict exposing (..)
+import Game.Definition exposing (..)
 import Game.BoardCircle exposing (..)
-
-
-type alias Row = Int
-
-
-type alias Board = Dict Coordinate BoardCircle
-
-
-type alias BoardRow = Dict Coordinate BoardCircle
-
-
-type alias BoardPosition = Dict Coordinate BoardCircle
 
 
 getCoordinatesRow : Int -> List Coordinate

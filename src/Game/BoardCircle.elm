@@ -1,13 +1,6 @@
 module Game.BoardCircle where
 
-
-type alias Coordinate = (Int, Int)
-
-
-type alias BoardCircle =
-    {
-        hasPiece : Bool
-    }
+import Game.Definition exposing (..)
 
 
 validateCoord : Coordinate -> Bool
