@@ -92,4 +92,6 @@ makePlayKeyPressed =
 
 getPlay : Play
 getPlay =
-    Signal.map2 (\makePlay cursor -> (makePlay, cursor)) makePlayKeyPressed getCursor
+    Signal.map2 
+        (\makePlay cursor -> (makePlay, cursor)) 
+        makePlayKeyPressed getCursor
