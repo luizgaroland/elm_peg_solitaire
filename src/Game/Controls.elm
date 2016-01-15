@@ -5,8 +5,6 @@ import Keyboard
 
 
 import Game.Definition exposing (..)
-import Game.BoardCircle exposing (..)
-import Game.Logic exposing (..)
 
 
 cursorCoordinateY : Signal Arrow
@@ -27,33 +25,6 @@ fromArrowsToCoordinates x y =
 getCursorDeviation : Signal Cursor
 getCursorDeviation =
     Signal.map2 fromArrowsToCoordinates cursorCoordinateX cursorCoordinateY
-
-
-updateCursor : Cursor -> Cursor -> Cursor
-updateCursor cursorSignal oldCursor =
-    let
-        oldCursor =
-            (,)
-            (fst oldCursor)
-            (snd oldCursor)
-
-        newCursor =
-            (,)
-            ((fst oldCursor) + (fst cursorSignal))
-            ((snd oldCursor) + (snd cursorSignal))
-
-    in
-        if validateCoord newCursor
-        then
-            newCursor
-
-        else
-            oldCursor
-
-
-getCursor : Signal Cursor
-getCursor =
-    Signal.foldp updateCursor cursorOrigin getCursorDeviation
 
 
 fromDeviationToDirection : Cursor -> Direction
@@ -90,8 +61,3 @@ makePlayKeyPressed =
     Keyboard.space
 
 
-getPlay : Play
-getPlay =
-    Signal.map2 
-        (\makePlay cursor -> (makePlay, cursor)) 
-        makePlayKeyPressed getCursor

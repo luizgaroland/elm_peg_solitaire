@@ -9,7 +9,7 @@ import Html exposing (..)
 --import Game.Logic exposing (..)
 import View.Canvas exposing (..)
 --import Game.BoardCircle exposing (..)
---import Controls.Controls exposing (..)
+--import Game.Controls exposing (..)
 
 
 --boardSignal : Signal Board

@@ -1,14 +1,10 @@
 module Game.Logic where
 
+
 import Dict exposing (..)
 import Game.Definition exposing (..)
 import Game.Board exposing (..)
 import Game.BoardCircle exposing (..)
-
-
-cursorOrigin : Cursor
-cursorOrigin =
-    (4,4)
 
 
 getInitialGame : Game

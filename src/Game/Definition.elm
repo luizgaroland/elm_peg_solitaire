@@ -52,7 +52,12 @@ type alias Cursor = (Int, Int)
 type alias Arrow = { x : Int, y : Int }
 
 
-type alias Play = Signal ( Bool, Cursor )
+type alias Play =
+    {
+        makePlayPressed : Bool
+    ,   cursorDirection : Direction
+    ,   cursorDeviation : Cursor
+    }
 
 
 type alias Game =
@@ -61,3 +66,7 @@ type alias Game =
     ,   board : Board
     ,   cursor : Cursor
     }
+
+cursorOrigin : Cursor
+cursorOrigin =
+    (4,4)
