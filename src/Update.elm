@@ -21,15 +21,17 @@ updateCursor state cursor deviation =
             ((snd oldCursor) + (snd deviation))
 
     in
-        if state == PlayingToChooseDirection then
-            oldCursor
-        else
+        if state == Playing
+        || state == Origin then
             if validateCoord newCursor
             then
                 newCursor
     
             else
                 oldCursor
+
+        else
+            oldCursor
 
 
 updateGame : Play -> Game -> Game
@@ -59,71 +61,83 @@ updateGame play game =
         maybeFirstDirection = List.head playDirections
 
     in
-        case gameState of
-            Origin ->
-                if shouldPlayHappen then
-                    if List.length playDirections == 1 then
-                        case maybeFirstDirection of
-                            Just direction ->
-                                { newGame |
-                                    board =
-                                        makePlay newGame.cursor direction
-                                        newGame.board
-                                ,   gameState = Playing
-                                }
-
-                            Nothing->
-                                newGame
-                    
-                    else
-                        newGame
-
-                else
-                    newGame
-
-            Playing ->
-                if shouldPlayHappen then
-                    if List.length playDirections == 1 then
-                        case maybeFirstDirection of
-                            Just direction ->
-                                { newGame |
-                                    board =
-                                        makePlay newGame.cursor direction
-                                        newGame.board
-                                ,   gameState = Playing
-                                }
-
-                            Nothing->
-                                newGame
-
-                    else if List.length playDirections > 1 then
-                        { newGame |
-                            gameState = PlayingToChooseDirection
-                        }
-
-                    else
-                        newGame
+        if arePlaysPossible board then
+            case gameState of
+                Origin ->
+                    if shouldPlayHappen then
+                        if List.length playDirections == 1 then
+                            case maybeFirstDirection of
+                                Just direction ->
+                                    { newGame |
+                                        board =
+                                            makePlay newGame.cursor direction
+                                            newGame.board
+                                    ,   gameState = Playing
+                                    }
+    
+                                Nothing->
+                                    newGame
                         
-                else
+                        else
+                            newGame
+    
+                    else
+                        newGame
+    
+                Playing ->
+                    if shouldPlayHappen then
+                        if List.length playDirections == 1 then
+                            case maybeFirstDirection of
+                                Just direction ->
+                                    { newGame |
+                                        board =
+                                            makePlay newGame.cursor direction
+                                            newGame.board
+                                    ,   gameState = Playing
+                                    }
+    
+                                Nothing->
+                                    newGame
+    
+                        else if List.length playDirections > 1 then
+                            { newGame |
+                                gameState = PlayingToChooseDirection
+                            }
+    
+                        else
+                            newGame
+                            
+                    else
+                        newGame
+    
+                PlayingToChooseDirection ->
+                    if canPlayHappen
+                    && List.member cursorDirection playDirections then
+                        { newGame |
+                            board =
+                                makePlay newGame.cursor cursorDirection 
+                                newGame.board
+                        ,   gameState = Playing
+                        }
+                        
+                    else
+                        newGame
+    
+                Loss ->
                     newGame
-
-            PlayingToChooseDirection ->
-                if canPlayHappen && List.member cursorDirection playDirections then
-                    { newGame |
-                        board =
-                            makePlay newGame.cursor cursorDirection 
-                            newGame.board
-                    ,   gameState = Playing
-                    }
+    
+                Win ->
+                    newGame
                     
-                else
-                    newGame
-
-            Loss ->
-                newGame
-
-            Win ->
-                newGame
+        else if doesTheBoardHaveOnePiece board then
+            { newGame |
+                gameState = Win
+            }
+        
+        else
+            { newGame |
+                gameState = Loss
+            }
 
 
 fromSignalsToPlayRecord : Bool -> Cursor -> Direction -> Play

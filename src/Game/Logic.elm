@@ -206,3 +206,28 @@ arePlaysPossible board =
             True
         else
             False
+
+
+filterWithPiece : Coordinate -> BoardCircle -> Bool
+filterWithPiece coordinate boardCircle =
+    if boardCircle.hasPiece then
+        True
+    
+    else
+        False
+
+
+doesTheBoardHaveOnePiece : Board -> Bool
+doesTheBoardHaveOnePiece board =
+    let
+        numberOfPieces =
+            List.length 
+            <| Dict.toList
+            <| Dict.filter filterWithPiece board
+    
+    in
+        if numberOfPieces == 1 then
+            True
+        
+        else
+            False

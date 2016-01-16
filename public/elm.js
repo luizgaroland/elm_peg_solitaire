@@ -10602,6 +10602,11 @@ Elm.Game.Logic.make = function (_elm) {
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm);
    var _op = {};
+   var filterWithPiece = F2(function (coordinate,boardCircle) {    return boardCircle.hasPiece ? true : false;});
+   var doesTheBoardHaveOnePiece = function (board) {
+      var numberOfPieces = $List.length($Dict.toList(A2($Dict.filter,filterWithPiece,board)));
+      return _U.eq(numberOfPieces,1) ? true : false;
+   };
    var makeDirectionsFromBooleans = F4(function (north,south,east,west) {
       return A2($Basics._op["++"],
       north ? A2($List._op["::"],$Game$Definition.North,_U.list([])) : _U.list([]),
@@ -10696,7 +10701,9 @@ Elm.Game.Logic.make = function (_elm) {
                                    ,canPlayHappenWhichDirection: canPlayHappenWhichDirection
                                    ,makePlay: makePlay
                                    ,isPlayPossible: isPlayPossible
-                                   ,arePlaysPossible: arePlaysPossible};
+                                   ,arePlaysPossible: arePlaysPossible
+                                   ,filterWithPiece: filterWithPiece
+                                   ,doesTheBoardHaveOnePiece: doesTheBoardHaveOnePiece};
 };
 Elm.Update = Elm.Update || {};
 Elm.Update.make = function (_elm) {
@@ -10724,7 +10731,8 @@ Elm.Update.make = function (_elm) {
       var newCursor = A2(F2(function (v0,v1) {    return {ctor: "_Tuple2",_0: v0,_1: v1};}),
       $Basics.fst(oldCursor) + $Basics.fst(deviation),
       $Basics.snd(oldCursor) + $Basics.snd(deviation));
-      return _U.eq(state,$Game$Definition.PlayingToChooseDirection) ? oldCursor : $Game$BoardCircle.validateCoord(newCursor) ? newCursor : oldCursor;
+      return _U.eq(state,$Game$Definition.Playing) || _U.eq(state,
+      $Game$Definition.Origin) ? $Game$BoardCircle.validateCoord(newCursor) ? newCursor : oldCursor : oldCursor;
    });
    var updateGame = F2(function (play,game) {
       var gameState = game.gameState;
@@ -10738,29 +10746,34 @@ Elm.Update.make = function (_elm) {
       var maybeFirstDirection = $List.head(playDirections);
       var makePlayPressed = play.makePlayPressed;
       var shouldPlayHappen = canPlayHappen && makePlayPressed;
-      var _p0 = gameState;
-      switch (_p0.ctor)
-      {case "Origin": if (shouldPlayHappen) if (_U.eq($List.length(playDirections),1)) {
-                    var _p1 = maybeFirstDirection;
-                    if (_p1.ctor === "Just") {
-                          return _U.update(newGame,{board: A3($Game$Logic.makePlay,newGame.cursor,_p1._0,newGame.board),gameState: $Game$Definition.Playing});
-                       } else {
-                          return newGame;
-                       }
-                 } else return newGame; else return newGame;
-         case "Playing": if (shouldPlayHappen) if (_U.eq($List.length(playDirections),1)) {
-                    var _p2 = maybeFirstDirection;
-                    if (_p2.ctor === "Just") {
-                          return _U.update(newGame,{board: A3($Game$Logic.makePlay,newGame.cursor,_p2._0,newGame.board),gameState: $Game$Definition.Playing});
-                       } else {
-                          return newGame;
-                       }
-                 } else if (_U.cmp($List.length(playDirections),1) > 0) return _U.update(newGame,{gameState: $Game$Definition.PlayingToChooseDirection});
-                 else return newGame; else return newGame;
-         case "PlayingToChooseDirection": return canPlayHappen && A2($List.member,cursorDirection,playDirections) ? _U.update(newGame,
-           {board: A3($Game$Logic.makePlay,newGame.cursor,cursorDirection,newGame.board),gameState: $Game$Definition.Playing}) : newGame;
-         case "Loss": return newGame;
-         default: return newGame;}
+      if ($Game$Logic.arePlaysPossible(board)) {
+            var _p0 = gameState;
+            switch (_p0.ctor)
+            {case "Origin": if (shouldPlayHappen) if (_U.eq($List.length(playDirections),1)) {
+                          var _p1 = maybeFirstDirection;
+                          if (_p1.ctor === "Just") {
+                                return _U.update(newGame,
+                                {board: A3($Game$Logic.makePlay,newGame.cursor,_p1._0,newGame.board),gameState: $Game$Definition.Playing});
+                             } else {
+                                return newGame;
+                             }
+                       } else return newGame; else return newGame;
+               case "Playing": if (shouldPlayHappen) if (_U.eq($List.length(playDirections),1)) {
+                          var _p2 = maybeFirstDirection;
+                          if (_p2.ctor === "Just") {
+                                return _U.update(newGame,
+                                {board: A3($Game$Logic.makePlay,newGame.cursor,_p2._0,newGame.board),gameState: $Game$Definition.Playing});
+                             } else {
+                                return newGame;
+                             }
+                       } else if (_U.cmp($List.length(playDirections),1) > 0) return _U.update(newGame,{gameState: $Game$Definition.PlayingToChooseDirection});
+                       else return newGame; else return newGame;
+               case "PlayingToChooseDirection": return canPlayHappen && A2($List.member,cursorDirection,playDirections) ? _U.update(newGame,
+                 {board: A3($Game$Logic.makePlay,newGame.cursor,cursorDirection,newGame.board),gameState: $Game$Definition.Playing}) : newGame;
+               case "Loss": return newGame;
+               default: return newGame;}
+         } else if ($Game$Logic.doesTheBoardHaveOnePiece(board)) return _U.update(newGame,{gameState: $Game$Definition.Win}); else return _U.update(newGame,
+            {gameState: $Game$Definition.Loss});
    });
    var getGame = A3($Signal.foldp,updateGame,$Game$Logic.getInitialGame,getPlay);
    return _elm.Update.values = {_op: _op
