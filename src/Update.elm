@@ -5,6 +5,7 @@ import Game.Definition exposing (..)
 import Game.Logic exposing (..)
 import Game.Controls exposing (..)
 import Game.BoardCircle exposing (..)
+import Game.Board exposing (..)
 
 
 updateCursor : GameState -> Cursor -> Cursor -> Cursor
@@ -124,20 +125,38 @@ updateGame play game =
                         newGame
     
                 Loss ->
-                    newGame
+                    if makePlayPressed then
+                        getInitialGame
+                        
+                    else
+                        newGame
     
                 Win ->
-                    newGame
+                    if makePlayPressed then
+                        getInitialGame
+                        
+                    else
+                        newGame
                     
         else if doesTheBoardHaveOnePiece board then
-            { newGame |
-                gameState = Win
-            }
+            if makePlayPressed then
+                getInitialGame
+                        
+            else
+                { 
+                    newGame |
+                        gameState = Win
+                }
         
         else
-            { newGame |
-                gameState = Loss
-            }
+            if makePlayPressed then
+                getInitialGame
+                        
+            else
+                { 
+                    newGame |
+                        gameState = Loss
+                }
 
 
 fromSignalsToPlayRecord : Bool -> Cursor -> Direction -> Play

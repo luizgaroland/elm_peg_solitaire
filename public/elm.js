@@ -8289,6 +8289,86 @@ Elm.Keyboard.make = function (_elm) {
                                  ,keysDown: keysDown
                                  ,presses: presses};
 };
+Elm.Native = Elm.Native || {};
+Elm.Native.Window = {};
+Elm.Native.Window.make = function make(localRuntime) {
+	localRuntime.Native = localRuntime.Native || {};
+	localRuntime.Native.Window = localRuntime.Native.Window || {};
+	if (localRuntime.Native.Window.values)
+	{
+		return localRuntime.Native.Window.values;
+	}
+
+	var NS = Elm.Native.Signal.make(localRuntime);
+	var Tuple2 = Elm.Native.Utils.make(localRuntime).Tuple2;
+
+
+	function getWidth()
+	{
+		return localRuntime.node.clientWidth;
+	}
+
+
+	function getHeight()
+	{
+		if (localRuntime.isFullscreen())
+		{
+			return window.innerHeight;
+		}
+		return localRuntime.node.clientHeight;
+	}
+
+
+	var dimensions = NS.input('Window.dimensions', Tuple2(getWidth(), getHeight()));
+
+
+	function resizeIfNeeded()
+	{
+		// Do not trigger event if the dimensions have not changed.
+		// This should be most of the time.
+		var w = getWidth();
+		var h = getHeight();
+		if (dimensions.value._0 === w && dimensions.value._1 === h)
+		{
+			return;
+		}
+
+		setTimeout(function() {
+			// Check again to see if the dimensions have changed.
+			// It is conceivable that the dimensions have changed
+			// again while some other event was being processed.
+			w = getWidth();
+			h = getHeight();
+			if (dimensions.value._0 === w && dimensions.value._1 === h)
+			{
+				return;
+			}
+			localRuntime.notify(dimensions.id, Tuple2(w, h));
+		}, 0);
+	}
+
+
+	localRuntime.addListener([dimensions.id], window, 'resize', resizeIfNeeded);
+
+
+	return localRuntime.Native.Window.values = {
+		dimensions: dimensions,
+		resizeIfNeeded: resizeIfNeeded
+	};
+};
+
+Elm.Window = Elm.Window || {};
+Elm.Window.make = function (_elm) {
+   "use strict";
+   _elm.Window = _elm.Window || {};
+   if (_elm.Window.values) return _elm.Window.values;
+   var _U = Elm.Native.Utils.make(_elm),$Basics = Elm.Basics.make(_elm),$Native$Window = Elm.Native.Window.make(_elm),$Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var dimensions = $Native$Window.dimensions;
+   var width = A2($Signal.map,$Basics.fst,dimensions);
+   var height = A2($Signal.map,$Basics.snd,dimensions);
+   return _elm.Window.values = {_op: _op,dimensions: dimensions,width: width,height: height};
+};
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 
 },{}],2:[function(require,module,exports){
@@ -10770,10 +10850,11 @@ Elm.Update.make = function (_elm) {
                        else return newGame; else return newGame;
                case "PlayingToChooseDirection": return canPlayHappen && A2($List.member,cursorDirection,playDirections) ? _U.update(newGame,
                  {board: A3($Game$Logic.makePlay,newGame.cursor,cursorDirection,newGame.board),gameState: $Game$Definition.Playing}) : newGame;
-               case "Loss": return newGame;
-               default: return newGame;}
-         } else if ($Game$Logic.doesTheBoardHaveOnePiece(board)) return _U.update(newGame,{gameState: $Game$Definition.Win}); else return _U.update(newGame,
-            {gameState: $Game$Definition.Loss});
+               case "Loss": return makePlayPressed ? $Game$Logic.getInitialGame : newGame;
+               default: return makePlayPressed ? $Game$Logic.getInitialGame : newGame;}
+         } else if ($Game$Logic.doesTheBoardHaveOnePiece(board)) return makePlayPressed ? $Game$Logic.getInitialGame : _U.update(newGame,
+            {gameState: $Game$Definition.Win}); else if (makePlayPressed) return $Game$Logic.getInitialGame; else return _U.update(newGame,
+               {gameState: $Game$Definition.Loss});
    });
    var getGame = A3($Signal.foldp,updateGame,$Game$Logic.getInitialGame,getPlay);
    return _elm.Update.values = {_op: _op
@@ -10935,16 +11016,66 @@ Elm.View.Canvas.make = function (_elm) {
    var _U = Elm.Native.Utils.make(_elm),
    $Basics = Elm.Basics.make(_elm),
    $Debug = Elm.Debug.make(_elm),
+   $Game$Definition = Elm.Game.Definition.make(_elm),
+   $Graphics$Element = Elm.Graphics.Element.make(_elm),
    $Html = Elm.Html.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm),
    $Update = Elm.Update.make(_elm),
-   $View$Board = Elm.View.Board.make(_elm);
+   $View$Board = Elm.View.Board.make(_elm),
+   $Window = Elm.Window.make(_elm);
    var _op = {};
-   var renderGame = A2($Signal.map,function (game) {    return A2($View$Board.renderBoard,game.board,game.cursor);},$Update.getGame);
-   return _elm.View.Canvas.values = {_op: _op,renderGame: renderGame};
+   var mainScreenCollage = F2(function (_p0,game) {
+      var _p1 = _p0;
+      var _p2 = _p1._0;
+      return _U.eq(game.gameState,$Game$Definition.Origin) || (_U.eq(game.gameState,$Game$Definition.Playing) || _U.eq(game.gameState,
+      $Game$Definition.PlayingToChooseDirection)) ? A2($Graphics$Element.flow,
+      $Graphics$Element.down,
+      _U.list([A4($Graphics$Element.container,
+              _p2,
+              100,
+              $Graphics$Element.middle,
+              A3($Html.toElement,240,100,A2($Html.h1,_U.list([]),_U.list([$Html.text("Peg Leg Solitaire")]))))
+              ,A4($Graphics$Element.container,
+              _p2,
+              325,
+              $Graphics$Element.middle,
+              A3($Html.toElement,335,325,A2($View$Board.renderBoard,game.board,game.cursor)))])) : _U.eq(game.gameState,
+      $Game$Definition.Win) ? A2($Graphics$Element.flow,
+      $Graphics$Element.down,
+      _U.list([A4($Graphics$Element.container,
+              _p2,
+              100,
+              $Graphics$Element.middle,
+              A3($Html.toElement,240,100,A2($Html.h1,_U.list([]),_U.list([$Html.text("Peg Leg Solitaire")]))))
+              ,A4($Graphics$Element.container,
+              _p2,
+              325,
+              $Graphics$Element.middle,
+              A3($Html.toElement,505,80,A2($Html.h1,_U.list([]),_U.list([$Html.text("Huzzah! You Win, Congratulations!")]))))])) : _U.eq(game.gameState,
+      $Game$Definition.Loss) ? A2($Graphics$Element.flow,
+      $Graphics$Element.down,
+      _U.list([A4($Graphics$Element.container,
+              _p2,
+              100,
+              $Graphics$Element.middle,
+              A3($Html.toElement,240,100,A2($Html.h1,_U.list([]),_U.list([$Html.text("Peg Leg Solitaire")]))))
+              ,A4($Graphics$Element.container,
+              _p2,
+              325,
+              $Graphics$Element.middle,
+              A3($Html.toElement,365,105,A2($Html.h1,_U.list([]),_U.list([$Html.text("You lost! Sucks to be you!")]))))])) : A2($Graphics$Element.flow,
+      $Graphics$Element.down,
+      _U.list([A4($Graphics$Element.container,
+      _p2,
+      100,
+      $Graphics$Element.middle,
+      A3($Html.toElement,240,100,A2($Html.h1,_U.list([]),_U.list([$Html.text("Peg Leg Solitaire")]))))]));
+   });
+   var renderCanvas = A3($Signal.map2,mainScreenCollage,$Window.dimensions,$Update.getGame);
+   return _elm.View.Canvas.values = {_op: _op,mainScreenCollage: mainScreenCollage,renderCanvas: renderCanvas};
 };
 Elm.Main = Elm.Main || {};
 Elm.Main.make = function (_elm) {
@@ -10954,13 +11085,13 @@ Elm.Main.make = function (_elm) {
    var _U = Elm.Native.Utils.make(_elm),
    $Basics = Elm.Basics.make(_elm),
    $Debug = Elm.Debug.make(_elm),
-   $Html = Elm.Html.make(_elm),
+   $Graphics$Element = Elm.Graphics.Element.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm),
    $View$Canvas = Elm.View.Canvas.make(_elm);
    var _op = {};
-   var main = $View$Canvas.renderGame;
+   var main = $View$Canvas.renderCanvas;
    return _elm.Main.values = {_op: _op,main: main};
 };
