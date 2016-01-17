@@ -1,6 +1,6 @@
 $body_color = #9999CC
 $cursor_color = yellow
-
+$direction_color = red
 
 @keyframes flickerAnimation
 	0%   { opacity:1 }
@@ -36,6 +36,17 @@ $cursor_color = yellow
 	animation: flickerAnimation 2s infinite
 	color: $cursor_color
 
+
+.cursor_choosing
+	color: $cursor_color
+
+
+.direction
+	-moz-animation: flickerAnimation 2s infinite
+	-o-animation: flickerAnimation 2s infinite
+	-webkit-animation: flickerAnimation 2s infinite
+	animation: flickerAnimation 2s infinite
+	color: $direction_color
 
 body
 	background-color: $body_color

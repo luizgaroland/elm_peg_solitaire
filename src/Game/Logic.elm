@@ -231,3 +231,35 @@ doesTheBoardHaveOnePiece board =
         
         else
             False
+
+
+getCursorAdjacentPlayCoordinates : Cursor -> Board -> List Coordinate
+getCursorAdjacentPlayCoordinates cursor board =
+    let
+        playAndDirections = canPlayHappenWhichDirection cursor board
+        
+        directionsList = snd playAndDirections 
+        
+        north = addCoordinateOnColumn cursor -1
+
+        south = addCoordinateOnColumn cursor 1
+
+        east = addCoordinateOnRow cursor 1
+
+        west = addCoordinateOnRow cursor -1
+        
+        northIs = List.member North directionsList
+        
+        southIs = List.member South directionsList
+        
+        eastIs = List.member East directionsList
+        
+        westIs = List.member West directionsList
+        
+        coordinatesList = []
+
+    in
+        (if northIs then north :: [] else [])
+        ++ (if southIs then south :: [] else [])
+        ++ (if eastIs then east :: [] else [])
+        ++ (if westIs then west :: [] else [])

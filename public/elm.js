@@ -10774,6 +10774,24 @@ Elm.Game.Logic.make = function (_elm) {
       var amountOfPlays = $List.length(listOfPossiblePlays);
       return _U.cmp(amountOfPlays,0) > 0 ? true : false;
    };
+   var getCursorAdjacentPlayCoordinates = F2(function (cursor,board) {
+      var coordinatesList = _U.list([]);
+      var west = A2($Game$Board.addCoordinateOnRow,cursor,-1);
+      var east = A2($Game$Board.addCoordinateOnRow,cursor,1);
+      var south = A2($Game$Board.addCoordinateOnColumn,cursor,1);
+      var north = A2($Game$Board.addCoordinateOnColumn,cursor,-1);
+      var playAndDirections = A2(canPlayHappenWhichDirection,cursor,board);
+      var directionsList = $Basics.snd(playAndDirections);
+      var northIs = A2($List.member,$Game$Definition.North,directionsList);
+      var southIs = A2($List.member,$Game$Definition.South,directionsList);
+      var eastIs = A2($List.member,$Game$Definition.East,directionsList);
+      var westIs = A2($List.member,$Game$Definition.West,directionsList);
+      return A2($Basics._op["++"],
+      northIs ? A2($List._op["::"],north,_U.list([])) : _U.list([]),
+      A2($Basics._op["++"],
+      southIs ? A2($List._op["::"],south,_U.list([])) : _U.list([]),
+      A2($Basics._op["++"],eastIs ? A2($List._op["::"],east,_U.list([])) : _U.list([]),westIs ? A2($List._op["::"],west,_U.list([])) : _U.list([]))));
+   });
    var getInitialGame = {gameState: $Game$Definition.Origin,board: $Game$Board.setBoardOrigin($Game$Board.createBoard),cursor: $Game$Definition.cursorOrigin};
    return _elm.Game.Logic.values = {_op: _op
                                    ,getInitialGame: getInitialGame
@@ -10783,7 +10801,8 @@ Elm.Game.Logic.make = function (_elm) {
                                    ,isPlayPossible: isPlayPossible
                                    ,arePlaysPossible: arePlaysPossible
                                    ,filterWithPiece: filterWithPiece
-                                   ,doesTheBoardHaveOnePiece: doesTheBoardHaveOnePiece};
+                                   ,doesTheBoardHaveOnePiece: doesTheBoardHaveOnePiece
+                                   ,getCursorAdjacentPlayCoordinates: getCursorAdjacentPlayCoordinates};
 };
 Elm.Update = Elm.Update || {};
 Elm.Update.make = function (_elm) {
@@ -10884,6 +10903,10 @@ Elm.View.BoardPeripherals.make = function (_elm) {
    var circleWrapperClass = "fa-stack fa-lg";
    var pieceClass = "fa fa-circle fa-stack-1x";
    var piece = A2($Html.i,_U.list([$Html$Attributes.$class(pieceClass)]),_U.list([]));
+   var boardCircleDirectionToChoose = "fa fa-circle fa-stack-2x direction";
+   var renderOutCircleDirectionToChoose = A2($Html.i,_U.list([$Html$Attributes.$class(boardCircleDirectionToChoose)]),_U.list([]));
+   var boardCircleAtCursorChoosing = "fa fa-circle fa-stack-2x cursor_choosing";
+   var renderOuterCircleAtCursorChoosing = A2($Html.i,_U.list([$Html$Attributes.$class(boardCircleAtCursorChoosing)]),_U.list([]));
    var boardCircleAtCursor = "fa fa-circle fa-stack-2x at_cursor";
    var renderOuterCircleAtCursor = A2($Html.i,_U.list([$Html$Attributes.$class(boardCircleAtCursor)]),_U.list([]));
    var boardCircleClass = "fa fa-circle fa-stack-2x fa-inverse";
@@ -10893,11 +10916,15 @@ Elm.View.BoardPeripherals.make = function (_elm) {
    return _elm.View.BoardPeripherals.values = {_op: _op
                                               ,boardCircleClass: boardCircleClass
                                               ,boardCircleAtCursor: boardCircleAtCursor
+                                              ,boardCircleAtCursorChoosing: boardCircleAtCursorChoosing
+                                              ,boardCircleDirectionToChoose: boardCircleDirectionToChoose
                                               ,pieceClass: pieceClass
                                               ,circleWrapperClass: circleWrapperClass
                                               ,boardCircleFillerClass: boardCircleFillerClass
                                               ,renderOuterCircle: renderOuterCircle
                                               ,renderOuterCircleAtCursor: renderOuterCircleAtCursor
+                                              ,renderOuterCircleAtCursorChoosing: renderOuterCircleAtCursorChoosing
+                                              ,renderOutCircleDirectionToChoose: renderOutCircleDirectionToChoose
                                               ,piece: piece
                                               ,fillerCircle: fillerCircle};
 };
@@ -10914,6 +10941,7 @@ Elm.View.Board.make = function (_elm) {
    $Dict = Elm.Dict.make(_elm),
    $Game$Board = Elm.Game.Board.make(_elm),
    $Game$Definition = Elm.Game.Definition.make(_elm),
+   $Game$Logic = Elm.Game.Logic.make(_elm),
    $Html = Elm.Html.make(_elm),
    $Html$Attributes = Elm.Html.Attributes.make(_elm),
    $List = Elm.List.make(_elm),
@@ -10932,65 +10960,104 @@ Elm.View.Board.make = function (_elm) {
       var cursorX = $Basics.fst(cursor);
       return _U.eq(cursorX,coordinateX) && _U.eq(cursorY,coordinateY) ? true : false;
    });
-   var renderBoardCircle = F3(function (circleCase,coordinate,cursor) {
+   var renderBoardCircle = F3(function (circleCase,coordinate,game) {
+      var adjacentCoord = A2($Game$Logic.getCursorAdjacentPlayCoordinates,game.cursor,game.board);
+      var isCoordinateAdjacent = A2($List.member,coordinate,adjacentCoord);
+      var state = game.gameState;
+      var cursor = game.cursor;
       var isAtCursor = A2(isCoordinateAtCursor,coordinate,cursor);
-      var _p0 = circleCase;
-      if (_p0.ctor === "WithPiece") {
-            return isAtCursor ? A2($Html.td,
-            _U.list([]),
-            _U.list([A2($Html.span,
-            _U.list([$Html$Attributes.$class($View$BoardPeripherals.circleWrapperClass),$Html$Attributes.title($Basics.toString(coordinate))]),
-            _U.list([$View$BoardPeripherals.renderOuterCircleAtCursor,$View$BoardPeripherals.piece]))])) : A2($Html.td,
-            _U.list([]),
-            _U.list([A2($Html.span,
-            _U.list([$Html$Attributes.$class($View$BoardPeripherals.circleWrapperClass),$Html$Attributes.title($Basics.toString(coordinate))]),
-            _U.list([$View$BoardPeripherals.renderOuterCircle,$View$BoardPeripherals.piece]))]));
-         } else {
-            return isAtCursor ? A2($Html.td,
-            _U.list([]),
-            _U.list([A2($Html.span,
-            _U.list([$Html$Attributes.$class($View$BoardPeripherals.circleWrapperClass),$Html$Attributes.title($Basics.toString(coordinate))]),
-            _U.list([$View$BoardPeripherals.renderOuterCircleAtCursor]))])) : A2($Html.td,
-            _U.list([]),
-            _U.list([A2($Html.span,
-            _U.list([$Html$Attributes.$class($View$BoardPeripherals.circleWrapperClass),$Html$Attributes.title($Basics.toString(coordinate))]),
-            _U.list([$View$BoardPeripherals.renderOuterCircle]))]));
-         }
+      if (_U.eq(state,$Game$Definition.Playing) || _U.eq(state,$Game$Definition.Origin)) {
+            var _p0 = circleCase;
+            if (_p0.ctor === "WithPiece") {
+                  return isAtCursor ? A2($Html.td,
+                  _U.list([]),
+                  _U.list([A2($Html.span,
+                  _U.list([$Html$Attributes.$class($View$BoardPeripherals.circleWrapperClass),$Html$Attributes.title($Basics.toString(coordinate))]),
+                  _U.list([$View$BoardPeripherals.renderOuterCircleAtCursor,$View$BoardPeripherals.piece]))])) : A2($Html.td,
+                  _U.list([]),
+                  _U.list([A2($Html.span,
+                  _U.list([$Html$Attributes.$class($View$BoardPeripherals.circleWrapperClass),$Html$Attributes.title($Basics.toString(coordinate))]),
+                  _U.list([$View$BoardPeripherals.renderOuterCircle,$View$BoardPeripherals.piece]))]));
+               } else {
+                  return isAtCursor ? A2($Html.td,
+                  _U.list([]),
+                  _U.list([A2($Html.span,
+                  _U.list([$Html$Attributes.$class($View$BoardPeripherals.circleWrapperClass),$Html$Attributes.title($Basics.toString(coordinate))]),
+                  _U.list([$View$BoardPeripherals.renderOuterCircleAtCursor]))])) : A2($Html.td,
+                  _U.list([]),
+                  _U.list([A2($Html.span,
+                  _U.list([$Html$Attributes.$class($View$BoardPeripherals.circleWrapperClass),$Html$Attributes.title($Basics.toString(coordinate))]),
+                  _U.list([$View$BoardPeripherals.renderOuterCircle]))]));
+               }
+         } else if (_U.eq(state,$Game$Definition.PlayingToChooseDirection)) {
+               var _p1 = circleCase;
+               if (_p1.ctor === "WithPiece") {
+                     return isAtCursor ? A2($Html.td,
+                     _U.list([]),
+                     _U.list([A2($Html.span,
+                     _U.list([$Html$Attributes.$class($View$BoardPeripherals.circleWrapperClass),$Html$Attributes.title($Basics.toString(coordinate))]),
+                     _U.list([$View$BoardPeripherals.renderOuterCircleAtCursorChoosing,$View$BoardPeripherals.piece]))])) : isCoordinateAdjacent ? A2($Html.td,
+                     _U.list([]),
+                     _U.list([A2($Html.span,
+                     _U.list([$Html$Attributes.$class($View$BoardPeripherals.circleWrapperClass),$Html$Attributes.title($Basics.toString(coordinate))]),
+                     _U.list([$View$BoardPeripherals.renderOutCircleDirectionToChoose,$View$BoardPeripherals.piece]))])) : A2($Html.td,
+                     _U.list([]),
+                     _U.list([A2($Html.span,
+                     _U.list([$Html$Attributes.$class($View$BoardPeripherals.circleWrapperClass),$Html$Attributes.title($Basics.toString(coordinate))]),
+                     _U.list([$View$BoardPeripherals.renderOuterCircle,$View$BoardPeripherals.piece]))]));
+                  } else {
+                     return isAtCursor ? A2($Html.td,
+                     _U.list([]),
+                     _U.list([A2($Html.span,
+                     _U.list([$Html$Attributes.$class($View$BoardPeripherals.circleWrapperClass),$Html$Attributes.title($Basics.toString(coordinate))]),
+                     _U.list([$View$BoardPeripherals.renderOuterCircleAtCursorChoosing]))])) : isCoordinateAdjacent ? A2($Html.td,
+                     _U.list([]),
+                     _U.list([A2($Html.span,
+                     _U.list([$Html$Attributes.$class($View$BoardPeripherals.circleWrapperClass),$Html$Attributes.title($Basics.toString(coordinate))]),
+                     _U.list([$View$BoardPeripherals.renderOutCircleDirectionToChoose]))])) : A2($Html.td,
+                     _U.list([]),
+                     _U.list([A2($Html.span,
+                     _U.list([$Html$Attributes.$class($View$BoardPeripherals.circleWrapperClass),$Html$Attributes.title($Basics.toString(coordinate))]),
+                     _U.list([$View$BoardPeripherals.renderOuterCircle]))]));
+                  }
+            } else return A2($Html.td,_U.list([]),_U.list([]));
    });
    var WithoutPiece = {ctor: "WithoutPiece"};
    var WithPiece = {ctor: "WithPiece"};
-   var getHtmlCircleAndWrapper = F2(function (cursor,coordCircle) {
-      return $Basics.snd(coordCircle).hasPiece ? A3(renderBoardCircle,WithPiece,$Basics.fst(coordCircle),cursor) : A3(renderBoardCircle,
+   var getHtmlCircleAndWrapper = F2(function (game,coordCircle) {
+      return $Basics.snd(coordCircle).hasPiece ? A3(renderBoardCircle,WithPiece,$Basics.fst(coordCircle),game) : A3(renderBoardCircle,
       WithoutPiece,
       $Basics.fst(coordCircle),
-      cursor);
+      game);
    });
-   var getHtmlFromBoardRow = F2(function (cursor,boardRow) {    return A2($List.map,getHtmlCircleAndWrapper(cursor),$Dict.toList(boardRow));});
-   var renderTrimmedRow = F2(function (cursor,row) {
+   var getHtmlFromBoardRow = F2(function (game,boardRow) {    return A2($List.map,getHtmlCircleAndWrapper(game),$Dict.toList(boardRow));});
+   var renderTrimmedRow = F2(function (game,row) {
       var filler$ = _U.list([renderFillerCircle,renderFillerCircle]);
       var filler = _U.list([renderFillerCircle,renderFillerCircle]);
-      var html = A2($List.append,filler,A2(getHtmlFromBoardRow,cursor,row));
+      var html = A2($List.append,filler,A2(getHtmlFromBoardRow,game,row));
       var html$ = A2($List.append,html,filler$);
       return A2($Html.tr,_U.list([]),html$);
    });
-   var renderBoardTrimmedRowsTop = F2(function (board,cursor) {
-      return _U.list([A2(renderTrimmedRow,cursor,A2($Game$Board.getCirclesAtRow,1,board)),A2(renderTrimmedRow,cursor,A2($Game$Board.getCirclesAtRow,2,board))]);
-   });
-   var renderBoardTrimmedRowsBot = F2(function (board,cursor) {
-      return _U.list([A2(renderTrimmedRow,cursor,A2($Game$Board.getCirclesAtRow,6,board)),A2(renderTrimmedRow,cursor,A2($Game$Board.getCirclesAtRow,7,board))]);
-   });
-   var renderRow = F2(function (cursor,row) {    return A2($Html.tr,_U.list([]),A2(getHtmlFromBoardRow,cursor,row));});
-   var renderBoardCentralCluster = F2(function (board,cursor) {
-      return _U.list([A2(renderRow,cursor,A2($Game$Board.getCirclesAtRow,3,board))
-                     ,A2(renderRow,cursor,A2($Game$Board.getCirclesAtRow,4,board))
-                     ,A2(renderRow,cursor,A2($Game$Board.getCirclesAtRow,5,board))]);
-   });
-   var renderBoard = F2(function (board,cursor) {
-      var centralCluster = A2(renderBoardCentralCluster,board,cursor);
-      var rowBot = A2(renderBoardTrimmedRowsBot,board,cursor);
-      var rowsTop = A2(renderBoardTrimmedRowsTop,board,cursor);
+   var renderBoardTrimmedRowsTop = function (game) {
+      return _U.list([A2(renderTrimmedRow,game,A2($Game$Board.getCirclesAtRow,1,game.board))
+                     ,A2(renderTrimmedRow,game,A2($Game$Board.getCirclesAtRow,2,game.board))]);
+   };
+   var renderBoardTrimmedRowsBot = function (game) {
+      return _U.list([A2(renderTrimmedRow,game,A2($Game$Board.getCirclesAtRow,6,game.board))
+                     ,A2(renderTrimmedRow,game,A2($Game$Board.getCirclesAtRow,7,game.board))]);
+   };
+   var renderRow = F2(function (game,row) {    return A2($Html.tr,_U.list([]),A2(getHtmlFromBoardRow,game,row));});
+   var renderBoardCentralCluster = function (game) {
+      return _U.list([A2(renderRow,game,A2($Game$Board.getCirclesAtRow,3,game.board))
+                     ,A2(renderRow,game,A2($Game$Board.getCirclesAtRow,4,game.board))
+                     ,A2(renderRow,game,A2($Game$Board.getCirclesAtRow,5,game.board))]);
+   };
+   var renderBoard = function (game) {
+      var centralCluster = renderBoardCentralCluster(game);
+      var rowBot = renderBoardTrimmedRowsBot(game);
+      var rowsTop = renderBoardTrimmedRowsTop(game);
       return A2($Html.table,_U.list([]),A2($Basics._op["++"],rowsTop,A2($Basics._op["++"],centralCluster,rowBot)));
-   });
+   };
    return _elm.View.Board.values = {_op: _op
                                    ,WithPiece: WithPiece
                                    ,WithoutPiece: WithoutPiece
@@ -11027,7 +11094,7 @@ Elm.View.Canvas.make = function (_elm) {
    $View$Board = Elm.View.Board.make(_elm),
    $Window = Elm.Window.make(_elm);
    var _op = {};
-   var mainScreenCollage = F2(function (_p0,game) {
+   var mainFlowDown = F2(function (_p0,game) {
       var _p1 = _p0;
       var _p2 = _p1._0;
       return _U.eq(game.gameState,$Game$Definition.Origin) || (_U.eq(game.gameState,$Game$Definition.Playing) || _U.eq(game.gameState,
@@ -11042,8 +11109,7 @@ Elm.View.Canvas.make = function (_elm) {
               _p2,
               325,
               $Graphics$Element.middle,
-              A3($Html.toElement,335,325,A2($View$Board.renderBoard,game.board,game.cursor)))])) : _U.eq(game.gameState,
-      $Game$Definition.Win) ? A2($Graphics$Element.flow,
+              A3($Html.toElement,335,325,$View$Board.renderBoard(game)))])) : _U.eq(game.gameState,$Game$Definition.Win) ? A2($Graphics$Element.flow,
       $Graphics$Element.down,
       _U.list([A4($Graphics$Element.container,
               _p2,
@@ -11074,8 +11140,8 @@ Elm.View.Canvas.make = function (_elm) {
       $Graphics$Element.middle,
       A3($Html.toElement,240,100,A2($Html.h1,_U.list([]),_U.list([$Html.text("Peg Leg Solitaire")]))))]));
    });
-   var renderCanvas = A3($Signal.map2,mainScreenCollage,$Window.dimensions,$Update.getGame);
-   return _elm.View.Canvas.values = {_op: _op,mainScreenCollage: mainScreenCollage,renderCanvas: renderCanvas};
+   var renderCanvas = A3($Signal.map2,mainFlowDown,$Window.dimensions,$Update.getGame);
+   return _elm.View.Canvas.values = {_op: _op,mainFlowDown: mainFlowDown,renderCanvas: renderCanvas};
 };
 Elm.Main = Elm.Main || {};
 Elm.Main.make = function (_elm) {

@@ -38,6 +38,16 @@
   animation: flickerAnimation 2s infinite;
   color: #ff0;
 }
+.cursor_choosing {
+  color: #ff0;
+}
+.direction {
+  -moz-animation: flickerAnimation 2s infinite;
+  -o-animation: flickerAnimation 2s infinite;
+  -webkit-animation: flickerAnimation 2s infinite;
+  animation: flickerAnimation 2s infinite;
+  color: #f00;
+}
 body {
   background-color: #99c;
 }

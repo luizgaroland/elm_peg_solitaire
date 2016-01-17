@@ -9,7 +9,7 @@ import Dict exposing (..)
 import View.BoardPeripherals exposing (..)
 import Game.Definition exposing (..)
 import Game.Board exposing (..)
-import Game.BoardCircle exposing (..)
+import Game.Logic exposing (..)
 
 
 type BoardCircleViewCase = WithPiece | WithoutPiece
@@ -31,67 +31,166 @@ isCoordinateAtCursor coordinate cursor  =
             False
 
 
-renderBoardCircle : BoardCircleViewCase -> Coordinate -> Cursor -> Html
-renderBoardCircle circleCase coordinate cursor =
+renderBoardCircle : BoardCircleViewCase -> Coordinate -> Game -> Html
+renderBoardCircle circleCase coordinate game =
     let
+        cursor = game.cursor
+        
+        state = game.gameState
+        
         isAtCursor = isCoordinateAtCursor coordinate cursor
-    in    
-        case circleCase of
-            WithPiece ->
-                if isAtCursor then
-                    td []
-                    [
-                        span 
-                        [ 
-                            class circleWrapperClass
-                        ,   title <| toString coordinate
-                        ]
-                            [
-                                renderOuterCircleAtCursor
-                            ,   piece
+        
+        adjacentCoord = getCursorAdjacentPlayCoordinates game.cursor game.board
+        
+        isCoordinateAdjacent = List.member coordinate adjacentCoord
+        
+    in
+        if state == Playing
+        || state == Origin then
+            case circleCase of
+                WithPiece ->
+                    if isAtCursor then
+                        td []
+                        [
+                            span 
+                            [ 
+                                class circleWrapperClass
+                            ,   title <| toString coordinate
                             ]
-                    ]
+                                [
+                                    renderOuterCircleAtCursor
+                                ,   piece
+                                ]
+                        ]
+    
+                    else
+                        td []
+                        [
+                            span 
+                            [ 
+                                class circleWrapperClass
+                            ,   title <| toString coordinate
+                            ]
+                                [
+                                    renderOuterCircle
+                                ,   piece
+                                ]
+                        ]
+    
+                WithoutPiece -> 
+                    if isAtCursor then
+                        td []
+                        [
+                            span 
+                            [ 
+                                class circleWrapperClass
+                            ,   title <| toString coordinate
+                            ]
+                                [
+                                    renderOuterCircleAtCursor
+                                ]
+                        ]
+    
+                    else
+                        td []
+                        [
+                            span 
+                            [ 
+                                class circleWrapperClass
+                            ,   title <| toString coordinate
+                            ]
+                                [
+                                    renderOuterCircle
+                                ]
+                        ]
+                        
+        else if state == PlayingToChooseDirection then
+             case circleCase of
+                WithPiece ->
+                    if isAtCursor then
+                        td []
+                        [
+                            span 
+                            [ 
+                                class circleWrapperClass
+                            ,   title <| toString coordinate
+                            ]
+                                [
+                                    renderOuterCircleAtCursorChoosing
+                                ,   piece
+                                ]
+                        ]
+                    
+                    else if isCoordinateAdjacent then
+                        td []
+                        [
+                            span 
+                            [ 
+                                class circleWrapperClass
+                            ,   title <| toString coordinate
+                            ]
+                                [
+                                    renderOutCircleDirectionToChoose
+                                ,   piece
+                                ]
+                        ]
+    
+                    else
+                        td []
+                        [
+                            span 
+                            [ 
+                                class circleWrapperClass
+                            ,   title <| toString coordinate
+                            ]
+                                [
+                                    renderOuterCircle
+                                ,   piece
+                                ]
+                        ]
+    
+                WithoutPiece -> 
+                    if isAtCursor then
+                        td []
+                        [
+                            span 
+                            [ 
+                                class circleWrapperClass
+                            ,   title <| toString coordinate
+                            ]
+                                [
+                                    renderOuterCircleAtCursorChoosing
+                                ]
+                        ]
+    
+                    else if isCoordinateAdjacent then
+                        td []
+                        [
+                            span 
+                            [ 
+                                class circleWrapperClass
+                            ,   title <| toString coordinate
+                            ]
+                                [
+                                    renderOutCircleDirectionToChoose
+                                ]
+                        ]
+                    
+                    else
+                        td []
+                        [
+                            span 
+                            [ 
+                                class circleWrapperClass
+                            ,   title <| toString coordinate
+                            ]
+                                [
+                                    renderOuterCircle
+                                ]
+                        ]       
+        else
+            td [] []
 
-                else
-                    td []
-                    [
-                        span 
-                        [ 
-                            class circleWrapperClass
-                        ,   title <| toString coordinate
-                        ]
-                            [
-                                renderOuterCircle
-                            ,   piece
-                            ]
-                    ]
-
-            WithoutPiece -> 
-                if isAtCursor then
-                    td []
-                    [
-                        span 
-                        [ 
-                            class circleWrapperClass
-                        ,   title <| toString coordinate
-                        ]
-                            [
-                                renderOuterCircleAtCursor
-                            ]
-                    ]
-
-                else
-                    td []
-                    [
-                        span 
-                        [ 
-                            class circleWrapperClass
-                        ,   title <| toString coordinate
-                        ]
-                            [
-                                renderOuterCircle
-                            ]
-                    ]
 
 renderFillerCircle : Html
 renderFillerCircle =
@@ -104,22 +203,22 @@ renderFillerCircle =
     ]
 
 
-getHtmlCircleAndWrapper : Cursor -> (Coordinate, BoardCircle)  -> Html
-getHtmlCircleAndWrapper cursor coordCircle =
+getHtmlCircleAndWrapper : Game -> (Coordinate, BoardCircle)  -> Html
+getHtmlCircleAndWrapper game coordCircle =
     if (snd coordCircle).hasPiece then
-        renderBoardCircle WithPiece (fst coordCircle) cursor
+        renderBoardCircle WithPiece (fst coordCircle) game
 
     else
-        renderBoardCircle WithoutPiece (fst coordCircle) cursor
+        renderBoardCircle WithoutPiece (fst coordCircle) game
 
 
-getHtmlFromBoardRow : Cursor -> BoardRow -> List Html
-getHtmlFromBoardRow cursor boardRow =
-    List.map (getHtmlCircleAndWrapper cursor) <| Dict.toList boardRow
+getHtmlFromBoardRow : Game -> BoardRow -> List Html
+getHtmlFromBoardRow game boardRow =
+    List.map (getHtmlCircleAndWrapper game) <| Dict.toList boardRow
 
 
-renderTrimmedRow : Cursor -> BoardRow -> Html
-renderTrimmedRow cursor row =
+renderTrimmedRow : Game -> BoardRow -> Html
+renderTrimmedRow game row =
     let
         filler = 
             [ 
@@ -133,7 +232,7 @@ renderTrimmedRow cursor row =
             ,   renderFillerCircle
             ]
 
-        html = List.append filler (getHtmlFromBoardRow cursor row)
+        html = List.append filler (getHtmlFromBoardRow game row)
 
         html' = List.append html filler'
 
@@ -141,44 +240,44 @@ renderTrimmedRow cursor row =
         tr [] html'
 
 
-renderRow : Cursor -> BoardRow -> Html
-renderRow cursor row =
-    tr [] <| getHtmlFromBoardRow cursor row
+renderRow : Game -> BoardRow -> Html
+renderRow game row =
+    tr [] <| getHtmlFromBoardRow game row
 
 
-renderBoardTrimmedRowsTop : Board -> Cursor -> List Html
-renderBoardTrimmedRowsTop board cursor =
+renderBoardTrimmedRowsTop : Game -> List Html
+renderBoardTrimmedRowsTop game =
     [
-        renderTrimmedRow cursor <| getCirclesAtRow 1 board
-    ,   renderTrimmedRow cursor <| getCirclesAtRow 2 board
+        renderTrimmedRow game <| getCirclesAtRow 1 game.board
+    ,   renderTrimmedRow game <| getCirclesAtRow 2 game.board
     ]
 
 
-renderBoardTrimmedRowsBot : Board -> Cursor -> List Html
-renderBoardTrimmedRowsBot board cursor =
+renderBoardTrimmedRowsBot : Game -> List Html
+renderBoardTrimmedRowsBot game =
     [
-        renderTrimmedRow cursor <| getCirclesAtRow 6 board
-    ,   renderTrimmedRow cursor <| getCirclesAtRow 7 board
+        renderTrimmedRow game <| getCirclesAtRow 6 game.board
+    ,   renderTrimmedRow game <| getCirclesAtRow 7 game.board
     ]
 
 
-renderBoardCentralCluster : Board -> Cursor -> List Html
-renderBoardCentralCluster board cursor =
+renderBoardCentralCluster : Game -> List Html
+renderBoardCentralCluster game =
     [
-        renderRow cursor <| getCirclesAtRow 3 board
-    ,   renderRow cursor <| getCirclesAtRow 4 board
-    ,   renderRow cursor <| getCirclesAtRow 5 board
+        renderRow game <| getCirclesAtRow 3 game.board
+    ,   renderRow game <| getCirclesAtRow 4 game.board
+    ,   renderRow game <| getCirclesAtRow 5 game.board
     ]
 
 
-renderBoard : Board -> Cursor -> Html
-renderBoard board cursor =
+renderBoard : Game -> Html
+renderBoard game =
     let
-        rowsTop =  renderBoardTrimmedRowsTop board cursor
+        rowsTop =  renderBoardTrimmedRowsTop game
 
-        rowBot = renderBoardTrimmedRowsBot board cursor
+        rowBot = renderBoardTrimmedRowsBot game
 
-        centralCluster = renderBoardCentralCluster board cursor
+        centralCluster = renderBoardCentralCluster game
 
     in
         table [] <| rowsTop ++ centralCluster ++ rowBot

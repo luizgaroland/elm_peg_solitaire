@@ -10,11 +10,12 @@ import Update exposing (..)
 import View.Board exposing (..)
 import Game.Definition exposing (..)
 
+
 type alias WindowDimension = (Int, Int)
     
 
-mainScreenCollage : WindowDimension -> Game -> Element
-mainScreenCollage (w, h) game =
+mainFlowDown : WindowDimension -> Game -> Element
+mainFlowDown (w, h) game =
     if game.gameState == Origin
     || game.gameState == Playing
     || game.gameState == PlayingToChooseDirection then
@@ -25,7 +26,7 @@ mainScreenCollage (w, h) game =
                     <| h1 [] [ Html.text "Peg Leg Solitaire" ]
             ,   container w 325 middle
                     <| Html.toElement 335 325
-                    <| renderBoard game.board game.cursor
+                    <| renderBoard game 
             ]            
     
     else if game.gameState == Win then
@@ -62,6 +63,7 @@ mainScreenCollage (w, h) game =
                     <| h1 [] [ Html.text "Peg Leg Solitaire" ]
             ]
 
+
 renderCanvas : Signal Element
 renderCanvas =
-    Signal.map2 mainScreenCollage Window.dimensions getGame
+    Signal.map2 mainFlowDown Window.dimensions getGame

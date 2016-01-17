@@ -1,13 +1,24 @@
 module View.BoardPeripherals where
 
+
 import Html exposing (..)
 import Html.Attributes  exposing (..)
+
 
 boardCircleClass : String
 boardCircleClass = "fa fa-circle fa-stack-2x fa-inverse"
 
+
 boardCircleAtCursor : String
 boardCircleAtCursor = "fa fa-circle fa-stack-2x at_cursor"
+
+
+boardCircleAtCursorChoosing : String
+boardCircleAtCursorChoosing = "fa fa-circle fa-stack-2x cursor_choosing"
+
+
+boardCircleDirectionToChoose : String
+boardCircleDirectionToChoose = "fa fa-circle fa-stack-2x direction"
 
 
 pieceClass : String
@@ -28,6 +39,14 @@ renderOuterCircle = i [ class boardCircleClass ] []
 
 renderOuterCircleAtCursor : Html
 renderOuterCircleAtCursor = i [ class boardCircleAtCursor ] []
+
+
+renderOuterCircleAtCursorChoosing : Html
+renderOuterCircleAtCursorChoosing = i [ class boardCircleAtCursorChoosing ] []
+
+
+renderOutCircleDirectionToChoose : Html
+renderOutCircleDirectionToChoose = i [ class boardCircleDirectionToChoose ] []
 
 
 piece : Html
