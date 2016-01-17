@@ -24,6 +24,7 @@ mainFlowDown (w, h) game =
                 container w 100 middle
                     <| Html.toElement 240 100
                     <| h1 [] [ Html.text "Peg Leg Solitaire" ]
+                    
             ,   container w 325 middle
                     <| Html.toElement 335 325
                     <| renderBoard game 
@@ -35,11 +36,19 @@ mainFlowDown (w, h) game =
                     container w 100 middle
                         <| Html.toElement 240 100
                         <| h1 [] [ Html.text "Peg Leg Solitaire" ]
-                ,   container w 325 middle
+                        
+                ,   container w 150 middle
                         <| Html.toElement 505 80
                         <| h1 [] [ 
                                     Html.text 
                                         "Huzzah! You Win, Congratulations!" 
+                                 ]
+                                 
+                ,   container w 150 middle
+                        <| Html.toElement 185 80
+                        <| h4 [] [ 
+                                    Html.text 
+                                        "Press Space to Play Again!" 
                                  ]
                 ]
     
@@ -49,10 +58,17 @@ mainFlowDown (w, h) game =
                     container w 100 middle
                         <| Html.toElement 240 100
                         <| h1 [] [ Html.text "Peg Leg Solitaire" ]
-                ,   container w 325 middle
+                        
+                ,   container w 150 middle
                         <| Html.toElement 365 105
                         <| h1 [] [ Html.text "You lost! Sucks to be you!" ]
                         
+                 ,   container w 150 middle
+                        <| Html.toElement 185 80
+                        <| h4 [] [ 
+                                    Html.text 
+                                        "Press Space to Play Again!" 
+                                 ]       
                 ]
     
     else

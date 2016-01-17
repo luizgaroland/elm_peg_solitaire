@@ -11118,9 +11118,14 @@ Elm.View.Canvas.make = function (_elm) {
               A3($Html.toElement,240,100,A2($Html.h1,_U.list([]),_U.list([$Html.text("Peg Leg Solitaire")]))))
               ,A4($Graphics$Element.container,
               _p2,
-              325,
+              150,
               $Graphics$Element.middle,
-              A3($Html.toElement,505,80,A2($Html.h1,_U.list([]),_U.list([$Html.text("Huzzah! You Win, Congratulations!")]))))])) : _U.eq(game.gameState,
+              A3($Html.toElement,505,80,A2($Html.h1,_U.list([]),_U.list([$Html.text("Huzzah! You Win, Congratulations!")]))))
+              ,A4($Graphics$Element.container,
+              _p2,
+              150,
+              $Graphics$Element.middle,
+              A3($Html.toElement,185,80,A2($Html.h4,_U.list([]),_U.list([$Html.text("Press Space to Play Again!")]))))])) : _U.eq(game.gameState,
       $Game$Definition.Loss) ? A2($Graphics$Element.flow,
       $Graphics$Element.down,
       _U.list([A4($Graphics$Element.container,
@@ -11130,9 +11135,14 @@ Elm.View.Canvas.make = function (_elm) {
               A3($Html.toElement,240,100,A2($Html.h1,_U.list([]),_U.list([$Html.text("Peg Leg Solitaire")]))))
               ,A4($Graphics$Element.container,
               _p2,
-              325,
+              150,
               $Graphics$Element.middle,
-              A3($Html.toElement,365,105,A2($Html.h1,_U.list([]),_U.list([$Html.text("You lost! Sucks to be you!")]))))])) : A2($Graphics$Element.flow,
+              A3($Html.toElement,365,105,A2($Html.h1,_U.list([]),_U.list([$Html.text("You lost! Sucks to be you!")]))))
+              ,A4($Graphics$Element.container,
+              _p2,
+              150,
+              $Graphics$Element.middle,
+              A3($Html.toElement,185,80,A2($Html.h4,_U.list([]),_U.list([$Html.text("Press Space to Play Again!")]))))])) : A2($Graphics$Element.flow,
       $Graphics$Element.down,
       _U.list([A4($Graphics$Element.container,
       _p2,
