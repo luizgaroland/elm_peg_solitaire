@@ -66,19 +66,18 @@ updateGame play game =
             case gameState of
                 Origin ->
                     if shouldPlayHappen then
-                        if List.length playDirections == 1 then
-                            case maybeFirstDirection of
-                                Just direction ->
-                                    { newGame |
-                                        board =
-                                            makePlay newGame.cursor direction
-                                            newGame.board
-                                    ,   gameState = Playing
-                                    }
-    
-                                Nothing->
-                                    newGame
-                        
+                        case maybeFirstDirection of
+                            Just direction ->
+                                { newGame |
+                                    board =
+                                        makePlay newGame.cursor direction
+                                        newGame.board
+                                ,   gameState = Playing
+                                }
+
+                            Nothing->
+                                newGame
+                    
                         else
                             newGame
     
@@ -144,8 +143,7 @@ updateGame play game =
                         
             else
                 { 
-                    newGame |
-                        gameState = Win
+                    newGame | gameState = Win
                 }
         
         else
@@ -154,8 +152,7 @@ updateGame play game =
                         
             else
                 { 
-                    newGame |
-                        gameState = Loss
+                    newGame | gameState = Loss
                 }
 
 
