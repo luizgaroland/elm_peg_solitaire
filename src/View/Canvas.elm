@@ -4,6 +4,7 @@ module View.Canvas where
 import Html exposing (..)
 import Graphics.Element exposing (..)
 import Window exposing (..)
+import Text exposing (..)
 
 
 import Update exposing (..)
@@ -14,130 +15,101 @@ import Game.Definition exposing (..)
 type alias WindowDimension = (Int, Int)
     
 
+titleElement : Int -> List Element
+titleElement w =
+    [
+        container w 100 middle
+        <| centered 
+        <| bold
+        <| Text.height 40
+        <| fromString "Peg Leg Solitaire"
+    ]
+
+
+gameElement : Int -> Game -> List Element
+gameElement w game =
+    [
+        container w 326 middle
+        <| Html.toElement 335 326
+        <| renderBoard game 
+    ]
+
+
+controlFooterElement : Int -> List Element
+controlFooterElement w =
+    [
+        container w 80 middle
+        <| centered 
+        <| bold
+        <| Text.height 25
+        <| fromString "Controls"
+                
+    ,   container w 50 middle
+        <| centered 
+        <| Text.height 15
+        <| fromString "Space - Make Play"
+            
+    ,   container w 50 middle
+        <| centered 
+        <| Text.height 15
+        <| fromString "Arrows - Move Cursor | Choose Play Direction"
+    ]
+
+
+winMessageElement : Int -> List Element
+winMessageElement w =
+    [
+        container w 163 middle
+        <| centered 
+        <| Text.height 30
+        <| fromString "Huzzah! You Win, Congratulations!"
+                 
+    ,   container w 163 middle
+        <| centered 
+        <| Text.height 20
+        <| fromString "Press Space to Play Again!"
+    ]
+
+
+lossMessageElement : Int -> List Element
+lossMessageElement w =
+    [
+        container w 163 middle
+        <| centered 
+        <| Text.height 30
+        <| fromString "You lost! Sucks to be you!"
+                    
+    ,   container w 163 middle
+        <| centered 
+        <| Text.height 20
+        <| fromString "Press Space to Play Again!"
+    ] 
+
+
 mainFlowDown : WindowDimension -> Game -> Element
 mainFlowDown (w, h) game =
     if game.gameState == Origin
     || game.gameState == Playing
     || game.gameState == PlayingToChooseDirection then
         flow down
-            [
-                container w 100 middle
-                    <| Html.toElement 240 100
-                    <| h1 [] [ Html.text "Peg Leg Solitaire" ]
-             
-            ,   container w 325 middle
-                    <| Html.toElement 335 325
-                    <| renderBoard game 
-
-            ,   container w 80 middle
-                    <| Html.toElement 90 50
-                    <| h2 [] [ Html.text "Controls" ]
-                    
-            ,   container w 50 middle
-                    <| Html.toElement 121 50
-                    <| p []
-                        [ 
-                            Html.text 
-                                "Space - Make Play" 
-                        ]
-                        
-            ,   container w 50 middle
-                    <| Html.toElement 303 50
-                    <| p []
-                        [ 
-                            Html.text 
-                                "Arrows - Move Cursor | Choose Play Direction" 
-                        ]
-            ]            
+        <| (titleElement w) 
+        ++ (gameElement w game) 
+        ++ (controlFooterElement w)
     
     else if game.gameState == Win then
         flow down
-            [
-                container w 100 middle
-                    <| Html.toElement 240 100
-                    <| h1 [] [ Html.text "Peg Leg Solitaire" ]
-                    
-            ,   container w 150 middle
-                    <| Html.toElement 505 80
-                    <| h1 [] [ 
-                                Html.text 
-                                    "Huzzah! You Win, Congratulations!" 
-                             ]
-                             
-            ,   container w 150 middle
-                    <| Html.toElement 185 80
-                    <| h4 [] [ 
-                                Html.text 
-                                    "Press Space to Play Again!" 
-                             ]
-                             
-            ,   container w 80 middle
-                <| Html.toElement 90 50
-                <| h2 [] [ Html.text "Controls" ]
-                
-            ,   container w 50 middle
-                    <| Html.toElement 121 50
-                    <| p []
-                        [ 
-                            Html.text 
-                                "Space - Make Play" 
-                        ]
-                        
-            ,   container w 50 middle
-                    <| Html.toElement 303 50
-                    <| p []
-                        [ 
-                            Html.text 
-                                "Arrows - Move Cursor | Choose Play Direction" 
-                        ]
-            ]
-    
+        <| (titleElement w)
+        ++ (winMessageElement w) 
+        ++ (controlFooterElement w)
+         
     else if game.gameState == Loss then
         flow down
-            [
-                container w 100 middle
-                    <| Html.toElement 240 100
-                    <| h1 [] [ Html.text "Peg Leg Solitaire" ]
-                    
-            ,   container w 150 middle
-                    <| Html.toElement 355 105
-                    <| h1 [] [ Html.text "You lost! Sucks to be you!" ]
-                    
-            ,   container w 150 middle
-                    <| Html.toElement 185 80
-                    <| h4 [] [ 
-                                Html.text 
-                                    "Press Space to Play Again!" 
-                             ]       
-
-            ,   container w 80 middle
-                <| Html.toElement 90 50
-                <| h2 [] [ Html.text "Controls" ]
-                
-            ,   container w 50 middle
-                    <| Html.toElement 121 50
-                    <| p []
-                        [ 
-                            Html.text 
-                                "Space - Make Play" 
-                        ]
-                        
-            ,   container w 50 middle
-                    <| Html.toElement 303 50
-                    <| p []
-                        [ 
-                            Html.text 
-                                "Arrows - Move Cursor | Choose Play Direction" 
-                        ]
-            ]
+        <| (titleElement w) 
+        ++ (lossMessageElement w) 
+        ++ (controlFooterElement w)
 
     else
-        flow down
-            [
-                container w 100 middle
-                    <| Html.toElement 240 100
-                    <| h1 [] [ Html.text "Peg Leg Solitaire" ]
-            ]
+        flow down []
 
 
 renderCanvas : Signal Element
