@@ -5,7 +5,6 @@ import Game.Definition exposing (..)
 import Game.Logic exposing (..)
 import Game.Controls exposing (..)
 import Game.BoardCircle exposing (..)
-import Game.Board exposing (..)
 
 
 updateCursor : GameState -> Cursor -> Cursor -> Cursor
@@ -77,9 +76,6 @@ updateGame play game =
 
                             Nothing->
                                 newGame
-                    
-                        else
-                            newGame
     
                     else
                         newGame
@@ -109,7 +105,7 @@ updateGame play game =
                             
                     else
                         newGame
-    
+
                 PlayingToChooseDirection ->
                     if canPlayHappen
                     && List.member cursorDirection playDirections then
